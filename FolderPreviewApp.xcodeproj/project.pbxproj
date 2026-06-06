@@ -1,0 +1,654 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000000000000000000001 /* FolderPreviewAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* FolderPreviewAppApp.swift */; };
+		A10000000000000000000017 /* AppBranding.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000026 /* AppBranding.swift */; };
+		A10000000000000000000016 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000025 /* AppTheme.swift */; };
+		A10000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* ContentView.swift */; };
+		A10000000000000000000019 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000027 /* DashboardView.swift */; };
+		A1000000000000000000001A /* AppSidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000028 /* AppSidebar.swift */; };
+		A1000000000000000000001B /* AppVisualKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000029 /* AppVisualKit.swift */; };
+		A1000000000000000000001C /* IntroductionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000030 /* IntroductionView.swift */; };
+		A1000000000000000000001D /* QuickLookPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000031 /* QuickLookPageView.swift */; };
+		A1000000000000000000001E /* ExtensionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000032 /* ExtensionPageView.swift */; };
+		A1000000000000000000001F /* SettingsPagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000033 /* SettingsPagesView.swift */; };
+		A10000000000000000000020 /* AboutPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000034 /* AboutPageView.swift */; };
+		A1000000000000000000000D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000D /* Assets.xcassets */; };
+		A10000000000000000000010 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* SettingsView.swift */; };
+		A10000000000000000000011 /* AppearanceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* AppearanceSettingsView.swift */; };
+		A10000000000000000000012 /* BehaviorsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000012 /* BehaviorsSettingsView.swift */; };
+		A10000000000000000000013 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000013 /* GeneralSettingsView.swift */; };
+		A10000000000000000000018 /* SharedPreferencesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000027 /* SharedPreferencesStore.swift */; };
+		A10000000000000000000014 /* PreviewSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000008 /* PreviewSettings.swift */; };
+		A10000000000000000000015 /* PreviewColumn.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000009 /* PreviewColumn.swift */; };
+		B10000000000000000000001 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* PreviewViewController.swift */; };
+		B10000000000000000000002 /* FolderContentsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* FolderContentsTableView.swift */; };
+		B10000000000000000000003 /* FileItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* FileItem.swift */; };
+		B10000000000000000000004 /* FolderContentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000004 /* FolderContentLoader.swift */; };
+		B10000000000000000000005 /* QuickLookUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B20000000000000000000005 /* QuickLookUI.framework */; };
+		B10000000000000000000007 /* ThumbnailProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000010 /* ThumbnailProvider.swift */; };
+		B10000000000000000000008 /* PreviewTableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000011 /* PreviewTableHeaderView.swift */; };
+		B10000000000000000000009 /* PreviewFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000012 /* PreviewFooterView.swift */; };
+		B10000000000000000000011 /* ArchiveContentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000018 /* ArchiveContentLoader.swift */; };
+		B10000000000000000000012 /* FileIconCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000019 /* FileIconCache.swift */; };
+		B10000000000000000000013 /* FilePreviewPaneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000020 /* FilePreviewPaneView.swift */; };
+		B10000000000000000000014 /* InlineFilePreviewLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000021 /* InlineFilePreviewLoader.swift */; };
+		B10000000000000000000015 /* RichTextPreviewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000022 /* RichTextPreviewSupport.swift */; };
+		B1000000000000000000000A /* FolderContentsCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000013 /* FolderContentsCollectionView.swift */; };
+		B1000000000000000000000B /* PreviewSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000008 /* PreviewSettings.swift */; };
+		B1000000000000000000000C /* PreviewColumn.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000009 /* PreviewColumn.swift */; };
+		B1000000000000000000000D /* PreviewTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000014 /* PreviewTheme.swift */; };
+		B1000000000000000000000E /* QuickLookThumbnailing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B20000000000000000000015 /* QuickLookThumbnailing.framework */; };
+		B1000000000000000000000F /* FolderTreeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000016 /* FolderTreeModel.swift */; };
+		B10000000000000000000010 /* FolderNameCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000017 /* FolderNameCellView.swift */; };
+		B10000000000000000000019 /* SharedPreferencesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000027 /* SharedPreferencesStore.swift */; };
+		B10000000000000000000006 /* FolderPreviewExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B30000000000000000000001 /* FolderPreviewExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C10000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A90000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B60000000000000000000001;
+			remoteInfo = FolderPreviewExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C20000000000000000000001 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B10000000000000000000006 /* FolderPreviewExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A20000000000000000000001 /* FolderPreviewAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderPreviewAppApp.swift; sourceTree = "<group>"; };
+		A20000000000000000000026 /* AppBranding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBranding.swift; sourceTree = "<group>"; };
+		A20000000000000000000025 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		A20000000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A20000000000000000000027 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		A20000000000000000000028 /* AppSidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSidebar.swift; sourceTree = "<group>"; };
+		A20000000000000000000029 /* AppVisualKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVisualKit.swift; sourceTree = "<group>"; };
+		A20000000000000000000030 /* IntroductionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroductionView.swift; sourceTree = "<group>"; };
+		A20000000000000000000031 /* QuickLookPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLookPageView.swift; sourceTree = "<group>"; };
+		A20000000000000000000032 /* ExtensionPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionPageView.swift; sourceTree = "<group>"; };
+		A20000000000000000000033 /* SettingsPagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPagesView.swift; sourceTree = "<group>"; };
+		A20000000000000000000034 /* AboutPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutPageView.swift; sourceTree = "<group>"; };
+		A2000000000000000000000D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A20000000000000000000010 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A20000000000000000000011 /* AppearanceSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingsView.swift; sourceTree = "<group>"; };
+		A20000000000000000000012 /* BehaviorsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BehaviorsSettingsView.swift; sourceTree = "<group>"; };
+		A20000000000000000000013 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
+		A20000000000000000000014 /* FolderPreviewApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FolderPreviewApp.entitlements; sourceTree = "<group>"; };
+		A30000000000000000000001 /* FolderPreviewApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FolderPreviewApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B20000000000000000000001 /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
+		B20000000000000000000002 /* FolderContentsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderContentsTableView.swift; sourceTree = "<group>"; };
+		B20000000000000000000003 /* FileItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileItem.swift; sourceTree = "<group>"; };
+		B20000000000000000000004 /* FolderContentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderContentLoader.swift; sourceTree = "<group>"; };
+		B20000000000000000000005 /* QuickLookUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookUI.framework; path = System/Library/Frameworks/QuickLookUI.framework; sourceTree = SDKROOT; };
+		B20000000000000000000006 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B20000000000000000000007 /* FolderPreviewExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FolderPreviewExtension.entitlements; sourceTree = "<group>"; };
+		B20000000000000000000027 /* SharedPreferencesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedPreferencesStore.swift; sourceTree = "<group>"; };
+		B20000000000000000000008 /* PreviewSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewSettings.swift; sourceTree = "<group>"; };
+		B20000000000000000000009 /* PreviewColumn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewColumn.swift; sourceTree = "<group>"; };
+		B20000000000000000000010 /* ThumbnailProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailProvider.swift; sourceTree = "<group>"; };
+		B20000000000000000000011 /* PreviewTableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewTableHeaderView.swift; sourceTree = "<group>"; };
+		B20000000000000000000012 /* PreviewFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewFooterView.swift; sourceTree = "<group>"; };
+		B20000000000000000000018 /* ArchiveContentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveContentLoader.swift; sourceTree = "<group>"; };
+		B20000000000000000000019 /* FileIconCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileIconCache.swift; sourceTree = "<group>"; };
+		B20000000000000000000020 /* FilePreviewPaneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePreviewPaneView.swift; sourceTree = "<group>"; };
+		B20000000000000000000021 /* InlineFilePreviewLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InlineFilePreviewLoader.swift; sourceTree = "<group>"; };
+		B20000000000000000000022 /* RichTextPreviewSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichTextPreviewSupport.swift; sourceTree = "<group>"; };
+		B20000000000000000000013 /* FolderContentsCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderContentsCollectionView.swift; sourceTree = "<group>"; };
+		B20000000000000000000014 /* PreviewTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewTheme.swift; sourceTree = "<group>"; };
+		B20000000000000000000015 /* QuickLookThumbnailing.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLookThumbnailing.framework; path = System/Library/Frameworks/QuickLookThumbnailing.framework; sourceTree = SDKROOT; };
+		B20000000000000000000016 /* FolderTreeModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderTreeModel.swift; sourceTree = "<group>"; };
+		B20000000000000000000017 /* FolderNameCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderNameCellView.swift; sourceTree = "<group>"; };
+		B30000000000000000000001 /* FolderPreviewExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FolderPreviewExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A40000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B40000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000005 /* QuickLookUI.framework in Frameworks */,
+				B1000000000000000000000E /* QuickLookThumbnailing.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A50000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A50000000000000000000002 /* FolderPreviewApp */,
+				B50000000000000000000001 /* FolderPreviewExtension */,
+				A50000000000000000000009 /* Shared */,
+				A50000000000000000000003 /* Products */,
+				A50000000000000000000004 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		A50000000000000000000002 /* FolderPreviewApp */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000001 /* FolderPreviewAppApp.swift */,
+				A20000000000000000000026 /* AppBranding.swift */,
+				A20000000000000000000025 /* AppTheme.swift */,
+				A20000000000000000000002 /* ContentView.swift */,
+				A20000000000000000000027 /* DashboardView.swift */,
+				A20000000000000000000028 /* AppSidebar.swift */,
+				A20000000000000000000029 /* AppVisualKit.swift */,
+				A20000000000000000000030 /* IntroductionView.swift */,
+				A20000000000000000000031 /* QuickLookPageView.swift */,
+				A20000000000000000000032 /* ExtensionPageView.swift */,
+				A20000000000000000000033 /* SettingsPagesView.swift */,
+				A20000000000000000000034 /* AboutPageView.swift */,
+				A50000000000000000000010 /* Settings */,
+				A2000000000000000000000D /* Assets.xcassets */,
+				A20000000000000000000014 /* FolderPreviewApp.entitlements */,
+			);
+			path = FolderPreviewApp;
+			sourceTree = "<group>";
+		};
+		A50000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A30000000000000000000001 /* FolderPreviewApp.app */,
+				B30000000000000000000001 /* FolderPreviewExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A50000000000000000000004 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B20000000000000000000005 /* QuickLookUI.framework */,
+				B20000000000000000000015 /* QuickLookThumbnailing.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A50000000000000000000010 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000010 /* SettingsView.swift */,
+				A20000000000000000000011 /* AppearanceSettingsView.swift */,
+				A20000000000000000000012 /* BehaviorsSettingsView.swift */,
+				A20000000000000000000013 /* GeneralSettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		A50000000000000000000009 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				B20000000000000000000003 /* FileItem.swift */,
+				B20000000000000000000004 /* FolderContentLoader.swift */,
+				B20000000000000000000018 /* ArchiveContentLoader.swift */,
+				B20000000000000000000008 /* PreviewSettings.swift */,
+				B20000000000000000000027 /* SharedPreferencesStore.swift */,
+				B20000000000000000000009 /* PreviewColumn.swift */,
+				B20000000000000000000014 /* PreviewTheme.swift */,
+				B20000000000000000000021 /* InlineFilePreviewLoader.swift */,
+				B20000000000000000000022 /* RichTextPreviewSupport.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		B50000000000000000000001 /* FolderPreviewExtension */ = {
+			isa = PBXGroup;
+			children = (
+				B20000000000000000000001 /* PreviewViewController.swift */,
+				B20000000000000000000002 /* FolderContentsTableView.swift */,
+				B20000000000000000000013 /* FolderContentsCollectionView.swift */,
+				B20000000000000000000012 /* PreviewFooterView.swift */,
+				B20000000000000000000011 /* PreviewTableHeaderView.swift */,
+				B20000000000000000000010 /* ThumbnailProvider.swift */,
+				B20000000000000000000016 /* FolderTreeModel.swift */,
+				B20000000000000000000017 /* FolderNameCellView.swift */,
+				B20000000000000000000019 /* FileIconCache.swift */,
+		B20000000000000000000020 /* FilePreviewPaneView.swift */,
+		B20000000000000000000006 /* Info.plist */,
+				B20000000000000000000007 /* FolderPreviewExtension.entitlements */,
+			);
+			path = FolderPreviewExtension;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A60000000000000000000001 /* FolderPreviewApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A80000000000000000000003 /* Build configuration list for PBXNativeTarget "FolderPreviewApp" */;
+			buildPhases = (
+				A70000000000000000000001 /* Sources */,
+				A40000000000000000000001 /* Frameworks */,
+				A70000000000000000000002 /* Resources */,
+				C20000000000000000000001 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C30000000000000000000001 /* PBXTargetDependency */,
+			);
+			name = FolderPreviewApp;
+			productName = FolderPreviewApp;
+			productReference = A30000000000000000000001 /* FolderPreviewApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B60000000000000000000001 /* FolderPreviewExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B80000000000000000000001 /* Build configuration list for PBXNativeTarget "FolderPreviewExtension" */;
+			buildPhases = (
+				B70000000000000000000001 /* Sources */,
+				B40000000000000000000001 /* Frameworks */,
+				B70000000000000000000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FolderPreviewExtension;
+			productName = FolderPreviewExtension;
+			productReference = B30000000000000000000001 /* FolderPreviewExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A90000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A60000000000000000000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					B60000000000000000000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A80000000000000000000001 /* Build configuration list for PBXProject "FolderPreviewApp" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A50000000000000000000001;
+			productRefGroup = A50000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A60000000000000000000001 /* FolderPreviewApp */,
+				B60000000000000000000001 /* FolderPreviewExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A70000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1000000000000000000000D /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B70000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A70000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000001 /* FolderPreviewAppApp.swift in Sources */,
+				A10000000000000000000017 /* AppBranding.swift in Sources */,
+				A10000000000000000000016 /* AppTheme.swift in Sources */,
+				A10000000000000000000002 /* ContentView.swift in Sources */,
+				A10000000000000000000019 /* DashboardView.swift in Sources */,
+				A1000000000000000000001A /* AppSidebar.swift in Sources */,
+				A1000000000000000000001B /* AppVisualKit.swift in Sources */,
+				A1000000000000000000001C /* IntroductionView.swift in Sources */,
+				A1000000000000000000001D /* QuickLookPageView.swift in Sources */,
+				A1000000000000000000001E /* ExtensionPageView.swift in Sources */,
+				A1000000000000000000001F /* SettingsPagesView.swift in Sources */,
+				A10000000000000000000020 /* AboutPageView.swift in Sources */,
+				A10000000000000000000010 /* SettingsView.swift in Sources */,
+				A10000000000000000000011 /* AppearanceSettingsView.swift in Sources */,
+				A10000000000000000000012 /* BehaviorsSettingsView.swift in Sources */,
+				A10000000000000000000013 /* GeneralSettingsView.swift in Sources */,
+				A10000000000000000000014 /* PreviewSettings.swift in Sources */,
+				A10000000000000000000018 /* SharedPreferencesStore.swift in Sources */,
+				A10000000000000000000015 /* PreviewColumn.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B70000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000001 /* PreviewViewController.swift in Sources */,
+				B10000000000000000000002 /* FolderContentsTableView.swift in Sources */,
+				B1000000000000000000000A /* FolderContentsCollectionView.swift in Sources */,
+				B10000000000000000000009 /* PreviewFooterView.swift in Sources */,
+				B10000000000000000000008 /* PreviewTableHeaderView.swift in Sources */,
+				B10000000000000000000007 /* ThumbnailProvider.swift in Sources */,
+				B1000000000000000000000F /* FolderTreeModel.swift in Sources */,
+				B10000000000000000000010 /* FolderNameCellView.swift in Sources */,
+				B10000000000000000000012 /* FileIconCache.swift in Sources */,
+		B10000000000000000000013 /* FilePreviewPaneView.swift in Sources */,
+		B10000000000000000000014 /* InlineFilePreviewLoader.swift in Sources */,
+				B10000000000000000000015 /* RichTextPreviewSupport.swift in Sources */,
+				B10000000000000000000003 /* FileItem.swift in Sources */,
+				B10000000000000000000004 /* FolderContentLoader.swift in Sources */,
+				B10000000000000000000011 /* ArchiveContentLoader.swift in Sources */,
+				B1000000000000000000000B /* PreviewSettings.swift in Sources */,
+				B10000000000000000000019 /* SharedPreferencesStore.swift in Sources */,
+				B1000000000000000000000C /* PreviewColumn.swift in Sources */,
+				B1000000000000000000000D /* PreviewTheme.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C30000000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B60000000000000000000001 /* FolderPreviewExtension */;
+			targetProxy = C10000000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		AB0000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AB0000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		AB0000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FolderPreviewApp/FolderPreviewApp.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Dirscope;
+				INFOPLIST_KEY_CFBundleName = Dirscope;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.folderpreview.app;
+				PRODUCT_NAME = Dirscope;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AB0000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FolderPreviewApp/FolderPreviewApp.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Dirscope;
+				INFOPLIST_KEY_CFBundleName = Dirscope;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.folderpreview.app;
+				PRODUCT_NAME = Dirscope;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		BB0000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FolderPreviewExtension/FolderPreviewExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FolderPreviewExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.folderpreview.app.preview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		BB0000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = FolderPreviewExtension/FolderPreviewExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FolderPreviewExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.folderpreview.app.preview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A80000000000000000000001 /* Build configuration list for PBXProject "FolderPreviewApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AB0000000000000000000001 /* Debug */,
+				AB0000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A80000000000000000000003 /* Build configuration list for PBXNativeTarget "FolderPreviewApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AB0000000000000000000003 /* Debug */,
+				AB0000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B80000000000000000000001 /* Build configuration list for PBXNativeTarget "FolderPreviewExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB0000000000000000000001 /* Debug */,
+				BB0000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A90000000000000000000001 /* Project object */;
+}

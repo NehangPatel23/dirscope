@@ -24,17 +24,24 @@ enum ArchiveContentLoader {
 
         if let rootPrefix = singleRootFolderPrefix(in: paths) {
             return FolderContentLoader.sorted(
-                buildChildItems(
-                    from: paths,
-                    archiveURL: archiveURL,
-                    relativePath: rootPrefix,
-                    metadata: metadata
+                applyFolderMetadata(
+                    to: buildChildItems(
+                        from: paths,
+                        archiveURL: archiveURL,
+                        relativePath: rootPrefix,
+                        entries: entries,
+                        metadata: metadata
+                    ),
+                    entries: entries
                 )
             )
         }
 
         return FolderContentLoader.sorted(
-            buildTopLevelItems(from: paths, archiveURL: archiveURL, metadata: metadata)
+            applyFolderMetadata(
+                to: buildTopLevelItems(from: paths, archiveURL: archiveURL, entries: entries, metadata: metadata),
+                entries: entries
+            )
         )
     }
 
@@ -42,11 +49,15 @@ enum ArchiveContentLoader {
         let entries = listArchiveEntries(in: archiveURL)
         let metadata = metadataLookup(for: entries)
         return FolderContentLoader.sorted(
-            buildChildItems(
-                from: entries.map(\.path),
-                archiveURL: archiveURL,
-                relativePath: relativePath,
-                metadata: metadata
+            applyFolderMetadata(
+                to: buildChildItems(
+                    from: entries.map(\.path),
+                    archiveURL: archiveURL,
+                    relativePath: relativePath,
+                    entries: entries,
+                    metadata: metadata
+                ),
+                entries: entries
             )
         )
     }
@@ -232,19 +243,20 @@ enum ArchiveContentLoader {
     }
 
     private static func metadataLookup(for entries: [ListingEntry]) -> [String: ListingEntry] {
-        Dictionary(uniqueKeysWithValues: entries.map { ($0.normalizedPath, $0) })
+        Dictionary(entries.map { ($0.normalizedPath, $0) }, uniquingKeysWith: { first, _ in first })
     }
 
     private static func resolvedMetadata(
         for relativePath: String,
         isDirectory: Bool,
-        in lookup: [String: ListingEntry]
+        entries: [ListingEntry],
+        metadata: [String: ListingEntry]
     ) -> (size: Int64?, modificationDate: Date?) {
         if isDirectory {
-            return folderMetadata(for: relativePath, in: lookup)
+            return folderMetadata(for: relativePath, entries: entries, metadata: metadata)
         }
 
-        guard let entry = lookup[normalizeEntryPath(relativePath)] else {
+        guard let entry = metadata[normalizeEntryPath(relativePath)] else {
             return (nil, nil)
         }
         return (entry.size, entry.modificationDate)
@@ -252,11 +264,12 @@ enum ArchiveContentLoader {
 
     private static func folderMetadata(
         for relativePath: String,
-        in lookup: [String: ListingEntry]
+        entries: [ListingEntry],
+        metadata: [String: ListingEntry]
     ) -> (size: Int64?, modificationDate: Date?) {
         let normalizedFolder = normalizedFolderPrefix(for: relativePath)
-        let aggregated = aggregatedDescendantMetadata(for: normalizedFolder, in: lookup)
-        let explicitDate = lookup[normalizedFolder]?.modificationDate
+        let aggregated = aggregatedDescendantMetadata(for: relativePath, in: entries)
+        let explicitDate = metadata[normalizedFolder]?.modificationDate
 
         let latestDate = [explicitDate, aggregated.latestDate]
             .compactMap { $0 }
@@ -266,20 +279,67 @@ enum ArchiveContentLoader {
         return (totalSize, latestDate)
     }
 
+    private static func applyFolderMetadata(to items: [FileItem], entries: [ListingEntry]) -> [FileItem] {
+        let metadata = metadataLookup(for: entries)
+        return items.map { item in
+            guard item.isDirectory, item.isArchiveEntry else { return item }
+            let folderMeta = folderMetadata(for: item.relativePath, entries: entries, metadata: metadata)
+            guard folderMeta.size != item.size || folderMeta.modificationDate != item.modificationDate else {
+                return item
+            }
+            return FileItem(
+                url: item.url,
+                name: item.name,
+                isDirectory: item.isDirectory,
+                size: folderMeta.size,
+                modificationDate: folderMeta.modificationDate,
+                creationDate: item.creationDate,
+                contentAccessDate: item.contentAccessDate,
+                addedToDirectoryDate: item.addedToDirectoryDate,
+                kind: item.kind,
+                relativePath: item.relativePath,
+                pixelWidth: item.pixelWidth,
+                pixelHeight: item.pixelHeight,
+                isArchiveEntry: item.isArchiveEntry
+            )
+        }
+    }
+
     private static func normalizedFolderPrefix(for relativePath: String) -> String {
         let normalized = normalizeEntryPath(relativePath)
         return normalized.hasSuffix("/") ? normalized : normalized + "/"
     }
 
+    private static func folderName(from relativePath: String) -> String? {
+        let trimmed = normalizedFolderPrefix(for: relativePath)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        guard !trimmed.isEmpty else { return nil }
+        return trimmed.split(separator: "/").last.map(String.init)
+    }
+
+    private static func isDescendantEntry(path: String, ofFolder folderRelativePath: String) -> Bool {
+        let folderPrefix = normalizedFolderPrefix(for: folderRelativePath)
+        if path.hasPrefix(folderPrefix), path != folderPrefix {
+            return true
+        }
+
+        guard let folderName = folderName(from: folderRelativePath), !folderName.isEmpty else {
+            return false
+        }
+
+        return path.contains("/\(folderName)/") || path.hasPrefix("\(folderName)/")
+    }
+
     private static func aggregatedDescendantMetadata(
-        for folderPrefix: String,
-        in lookup: [String: ListingEntry]
+        for folderRelativePath: String,
+        in entries: [ListingEntry]
     ) -> (totalSize: Int64, latestDate: Date?) {
         var totalSize: Int64 = 0
         var latestDate: Date?
 
-        for (path, entry) in lookup {
-            guard path.hasPrefix(folderPrefix), path != folderPrefix else { continue }
+        for entry in entries {
+            let path = entry.normalizedPath
+            guard isDescendantEntry(path: path, ofFolder: folderRelativePath) else { continue }
 
             if !entry.isDirectory, let size = entry.size {
                 totalSize += size
@@ -305,6 +365,7 @@ enum ArchiveContentLoader {
     private static func buildTopLevelItems(
         from entries: [String],
         archiveURL: URL,
+        entries allEntries: [ListingEntry],
         metadata: [String: ListingEntry]
     ) -> [FileItem] {
         var topLevelNames = Set<String>()
@@ -321,7 +382,12 @@ enum ArchiveContentLoader {
                 guard !topLevelNames.contains(name) else { continue }
                 topLevelNames.insert(name)
                 let relativePath = isDir ? "\(name)/" : name
-                let entryMeta = resolvedMetadata(for: relativePath, isDirectory: isDir, in: metadata)
+                let entryMeta = resolvedMetadata(
+                    for: relativePath,
+                    isDirectory: isDir,
+                    entries: allEntries,
+                    metadata: metadata
+                )
                 items.append(makeArchiveItem(
                     archiveURL: archiveURL,
                     name: name,
@@ -333,7 +399,7 @@ enum ArchiveContentLoader {
             } else if !topLevelNames.contains(first) {
                 topLevelNames.insert(first)
                 let relativePath = "\(first)/"
-                let entryMeta = folderMetadata(for: relativePath, in: metadata)
+                let entryMeta = folderMetadata(for: relativePath, entries: allEntries, metadata: metadata)
                 items.append(makeArchiveItem(
                     archiveURL: archiveURL,
                     name: first,
@@ -352,6 +418,7 @@ enum ArchiveContentLoader {
         from entries: [String],
         archiveURL: URL,
         relativePath: String,
+        entries allEntries: [ListingEntry],
         metadata: [String: ListingEntry]
     ) -> [FileItem] {
         let prefix = relativePath.hasSuffix("/") ? relativePath : relativePath + "/"
@@ -374,7 +441,12 @@ enum ArchiveContentLoader {
                 guard !childNames.contains(name) else { continue }
                 childNames.insert(name)
                 let path = prefix + (isDir ? "\(name)/" : name)
-                let entryMeta = resolvedMetadata(for: path, isDirectory: isDir, in: metadata)
+                let entryMeta = resolvedMetadata(
+                    for: path,
+                    isDirectory: isDir,
+                    entries: allEntries,
+                    metadata: metadata
+                )
                 items.append(makeArchiveItem(
                     archiveURL: archiveURL,
                     name: name,
@@ -386,7 +458,7 @@ enum ArchiveContentLoader {
             } else if !childNames.contains(first) {
                 childNames.insert(first)
                 let relativePath = prefix + first + "/"
-                let entryMeta = folderMetadata(for: relativePath, in: metadata)
+                let entryMeta = folderMetadata(for: relativePath, entries: allEntries, metadata: metadata)
                 items.append(makeArchiveItem(
                     archiveURL: archiveURL,
                     name: first,

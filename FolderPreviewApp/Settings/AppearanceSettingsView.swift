@@ -4,8 +4,6 @@ struct AppearanceSettingsView: View {
     @State private var viewMode = PreviewSettings.viewMode.rawValue
     @State private var textSize = PreviewSettings.textSize.rawValue
     @State private var showPathBar = PreviewSettings.showPathBar
-    @State private var showThumbnails = PreviewSettings.showThumbnails
-
     var body: some View {
         Form {
             Section("Layout") {
@@ -41,14 +39,6 @@ struct AppearanceSettingsView: View {
                     }
                 }
                 .onChange(of: showPathBar) { PreviewSettings.showPathBar = $0 }
-
-                Toggle(isOn: $showThumbnails) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Show file thumbnails")
-                        SettingHint("Adds an icon column with file and folder previews in list view.")
-                    }
-                }
-                .onChange(of: showThumbnails) { PreviewSettings.showThumbnails = $0 }
             }
 
             Section {
@@ -73,7 +63,6 @@ struct AppearanceSettingsView: View {
         viewMode = PreviewSettings.viewMode.rawValue
         textSize = PreviewSettings.textSize.rawValue
         showPathBar = PreviewSettings.showPathBar
-        showThumbnails = PreviewSettings.showThumbnails
     }
 }
 

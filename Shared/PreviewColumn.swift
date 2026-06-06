@@ -15,7 +15,7 @@ enum PreviewColumn: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .preview: return "Icon"
+        case .preview: return "Preview"
         case .name: return "Name"
         case .dateModified: return "Modified"
         case .dateCreated: return "Created"
@@ -40,7 +40,7 @@ enum PreviewColumn: String, CaseIterable, Identifiable {
 
     var isOptional: Bool { self != .name }
 
-    static let defaultVisible: [PreviewColumn] = [.preview, .name, .dateModified, .size, .kind]
+    static let defaultVisible: [PreviewColumn] = [.name, .dateModified, .size, .kind]
 
-    static var toggleable: [PreviewColumn] { allCases.filter(\.isOptional) }
+    static var toggleable: [PreviewColumn] { allCases.filter { $0.isOptional && $0 != .preview } }
 }

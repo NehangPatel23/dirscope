@@ -1,7 +1,7 @@
 import AppKit
 import QuickLookUI
 
-final class PreviewViewController: NSViewController, QLPreviewingController {
+final class PreviewViewController: NSViewController, QLPreviewingController, QLPreviewPanelDelegate {
     private let tableView = FolderContentsTableView()
     private let collectionView = FolderContentsCollectionView()
     private let previewPane = FilePreviewPaneView()
@@ -14,6 +14,8 @@ final class PreviewViewController: NSViewController, QLPreviewingController {
     private var isArchive = false
     private var rootItems: [FileItem] = []
     private var settingsDarwinObserver: UnsafeMutableRawPointer?
+    private var isApplyingSettingsChange = false
+    private var archiveDoubleClickMonitor: Any?
 
     override var nibName: NSNib.Name? { nil }
 
@@ -70,7 +72,44 @@ final class PreviewViewController: NSViewController, QLPreviewingController {
             applyPreferredPanelSize()
             syncTableScrollerInsets()
             syncTableDocumentFrame()
+            updateArchiveDoubleClickGuard()
+            updateArchivePanelControl()
         }
+    }
+
+    override func viewDidAppear() {
+        super.viewDidAppear()
+        updateArchivePanelControl()
+    }
+
+    override func acceptsPreviewPanelControl(_ panel: QLPreviewPanel!) -> Bool {
+        isArchive
+    }
+
+    override func beginPreviewPanelControl(_ panel: QLPreviewPanel!) {
+        panel.delegate = self
+    }
+
+    override func endPreviewPanelControl(_ panel: QLPreviewPanel!) {
+        if panel.delegate as AnyObject? === self {
+            panel.delegate = nil
+        }
+    }
+
+    func previewPanel(_ panel: QLPreviewPanel!, handle event: NSEvent!) -> Bool {
+        guard isArchive else { return false }
+
+        if (event.type == .leftMouseDown || event.type == .leftMouseUp), event.clickCount >= 2 {
+            handleArchiveDoubleClick(at: event.locationInWindow)
+            return true
+        }
+
+        if event.type == .keyDown, event.keyCode == 36 || event.keyCode == 76 {
+            openSelectedArchiveEntry()
+            return true
+        }
+
+        return false
     }
 
     private func applyPreferredPanelSize() {
@@ -177,6 +216,7 @@ final class PreviewViewController: NSViewController, QLPreviewingController {
             name: NSView.frameDidChangeNotification,
             object: tableScrollView.contentView
         )
+
     }
 
     override func viewDidLayout() {
@@ -191,6 +231,10 @@ final class PreviewViewController: NSViewController, QLPreviewingController {
     }
 
     @objc private func sharedSettingsDidChange() {
+        guard !isApplyingSettingsChange else { return }
+        isApplyingSettingsChange = true
+        defer { isApplyingSettingsChange = false }
+
         PreviewSettings.reloadFromDisk()
         guard currentURL != nil else { return }
         reloadFromCurrentSettings()
@@ -315,7 +359,72 @@ final class PreviewViewController: NSViewController, QLPreviewingController {
         refreshFooter()
     }
 
+    private func updateArchivePanelControl() {
+        guard isArchive, view.window != nil else { return }
+        QLPreviewPanel.shared()?.updateController()
+    }
+
+    private func updateArchiveDoubleClickGuard() {
+        removeArchiveDoubleClickGuard()
+        guard isArchive else { return }
+
+        archiveDoubleClickMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseUp]) { [weak self] event in
+            guard let self, self.isArchive, event.clickCount >= 2 else { return event }
+
+            let pointInView = self.view.convert(event.locationInWindow, from: nil)
+            guard self.view.bounds.contains(pointInView) else { return event }
+
+            self.handleArchiveDoubleClick(at: event.locationInWindow)
+            return nil
+        }
+    }
+
+    private func removeArchiveDoubleClickGuard() {
+        if let archiveDoubleClickMonitor {
+            NSEvent.removeMonitor(archiveDoubleClickMonitor)
+            self.archiveDoubleClickMonitor = nil
+        }
+    }
+
+    private func handleArchiveDoubleClick(at windowPoint: NSPoint) {
+        if !tableScrollView.isHidden {
+            let pointInScroll = tableScrollView.convert(windowPoint, from: nil)
+            if tableScrollView.bounds.contains(pointInScroll) {
+                let pointInTable = tableView.convert(windowPoint, from: nil)
+                let row = tableView.row(at: pointInTable)
+                if row >= 0 {
+                    tableView.openItem(atRow: row)
+                    return
+                }
+            }
+        }
+
+        if !collectionView.isHidden {
+            let pointInCollection = collectionView.convert(windowPoint, from: nil)
+            if collectionView.bounds.contains(pointInCollection) {
+                collectionView.openItem(at: windowPoint)
+                return
+            }
+        }
+
+        openSelectedArchiveEntry()
+    }
+
+    private func openSelectedArchiveEntry() {
+        if !tableScrollView.isHidden {
+            let row = tableView.selectedRow
+            guard row >= 0 else { return }
+            tableView.openItem(atRow: row)
+            return
+        }
+
+        if !collectionView.isHidden {
+            collectionView.openSelectedItem()
+        }
+    }
+
     deinit {
+        removeArchiveDoubleClickGuard()
         if let settingsDarwinObserver {
             SharedPreferencesStore.removeDarwinObserver(settingsDarwinObserver)
         }

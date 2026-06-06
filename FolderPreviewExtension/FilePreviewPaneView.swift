@@ -1,10 +1,12 @@
 import AppKit
 import QuickLookUI
+import UniformTypeIdentifiers
 
 final class FilePreviewPaneView: NSView {
     private let titleLabel = NSTextField(labelWithString: "")
     private let subtitleLabel = NSTextField(labelWithString: "")
     private let modeControl = NSSegmentedControl()
+    private let openButton = NSButton(title: "Open", target: nil, action: nil)
     private let topSeparator = NSBox()
     private let contentContainer = NSView()
 
@@ -13,6 +15,8 @@ final class FilePreviewPaneView: NSView {
     private let sourceTextView = NSTextView()
     private let renderedScrollView = NSScrollView()
     private let renderedTextView = NSTextView()
+    private let imageScrollView = NSScrollView()
+    private let imagePreviewView = NSImageView()
     private let svgImageView = NSImageView()
     private let placeholderView = PreviewPlaceholderView()
 
@@ -20,6 +24,8 @@ final class FilePreviewPaneView: NSView {
     private var currentSourceText: String?
     private var currentRichFormat: RichTextPreviewFormat?
     private var displayMode: FilePreviewDisplayMode = .source
+    private var extractedTempURL: URL?
+    private var archiveLoadToken: UUID?
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -32,10 +38,13 @@ final class FilePreviewPaneView: NSView {
     }
 
     func show(item: FileItem?) {
+        cleanupExtractedTempFile()
+        archiveLoadToken = nil
         currentItem = item
         currentSourceText = nil
         currentRichFormat = nil
         modeControl.isHidden = true
+        updateOpenButton(for: item)
 
         guard let item else {
             showPlaceholder(message: "Click a file in the list to inspect it here.")
@@ -43,7 +52,7 @@ final class FilePreviewPaneView: NSView {
         }
 
         titleLabel.stringValue = item.name
-        subtitleLabel.stringValue = item.isDirectory ? "Directory" : item.kind
+        subtitleLabel.stringValue = item.isDirectory ? "Directory" : (item.isBrowsableArchive ? "Archive" : item.kind)
 
         if item.isDirectory {
             placeholderView.configure(
@@ -55,13 +64,18 @@ final class FilePreviewPaneView: NSView {
             return
         }
 
-        if item.isArchiveEntry {
+        if item.isBrowsableArchive && !item.isArchiveEntry {
             placeholderView.configure(
                 icon: NSImage(systemSymbolName: "doc.zipper", accessibilityDescription: nil),
                 title: item.name,
-                message: "Unpack the archive to view this file."
+                message: "Use the disclosure arrow in the list to browse this archive."
             )
             showPlaceholderMode()
+            return
+        }
+
+        if item.isArchiveEntry {
+            showArchiveEntryPreview(for: item)
             return
         }
 
@@ -76,16 +90,106 @@ final class FilePreviewPaneView: NSView {
         }
 
         placeholderView.configure(
-            icon: FileIconCache.shared.icon(for: item.url.path),
+            icon: FileIconCache.shared.icon(for: item),
             title: item.name,
             message: "Double-click to launch in its default application."
         )
         showPlaceholderMode()
     }
 
+    private func showArchiveEntryPreview(for item: FileItem) {
+        let token = UUID()
+        archiveLoadToken = token
+
+        placeholderView.configure(
+            icon: FileIconCache.shared.icon(for: item),
+            title: item.name,
+            message: "Loading preview…"
+        )
+        showPlaceholderMode()
+
+        let archiveURL = item.url
+        let relativePath = item.relativePath
+        let itemID = item.id
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let data = ArchiveContentLoader.extractEntryData(from: archiveURL, path: relativePath),
+                  !data.isEmpty else {
+                DispatchQueue.main.async {
+                    guard let self, self.archiveLoadToken == token, self.currentItem?.id == itemID else { return }
+                    self.showArchivePreviewFailure(for: item)
+                }
+                return
+            }
+
+            DispatchQueue.main.async {
+                guard let self, self.archiveLoadToken == token, self.currentItem?.id == itemID else { return }
+                self.presentArchiveEntryData(data, for: item)
+            }
+        }
+    }
+
+    private func presentArchiveEntryData(_ data: Data, for item: FileItem) {
+        if isImageFile(named: item.name), let image = NSImage(data: data) {
+            showImagePreview(image)
+            return
+        }
+
+        if InlineFilePreviewLoader.isTextPreviewable(fileName: item.name),
+           let text = InlineFilePreviewLoader.decodeText(from: data) {
+            showRichOrPlainText(text, for: item)
+            return
+        }
+
+        if let tempURL = ArchiveContentLoader.extractEntryToTempFile(
+            from: item.url,
+            path: item.relativePath,
+            filename: item.name
+        ) {
+            extractedTempURL = tempURL
+            if showQuickLookPreview(for: tempURL) {
+                return
+            }
+            cleanupExtractedTempFile()
+        }
+
+        showArchivePreviewFailure(for: item)
+    }
+
+    private func updateOpenButton(for item: FileItem?) {
+        let canOpen = item.map { $0.isArchiveEntry && !$0.isContainer } ?? false
+        openButton.isHidden = !canOpen
+    }
+
+    @objc private func openCurrentItemExternally() {
+        guard let item = currentItem else { return }
+        FileItemLauncher.open(item)
+    }
+
+    private func showArchivePreviewFailure(for item: FileItem) {
+        placeholderView.configure(
+            icon: FileIconCache.shared.icon(for: item),
+            title: item.name,
+            message: "This file could not be previewed from the archive. Use Open or double-click the file in the list."
+        )
+        showPlaceholderMode()
+    }
+
+    private func isImageFile(named name: String) -> Bool {
+        let ext = URL(fileURLWithPath: name).pathExtension
+        guard let type = UTType(filenameExtension: ext) else { return false }
+        return type.conforms(to: .image) && type.identifier != "public.svg-image"
+    }
+
+    private func cleanupExtractedTempFile() {
+        guard let extractedTempURL else { return }
+        try? FileManager.default.removeItem(at: extractedTempURL)
+        self.extractedTempURL = nil
+    }
+
     private func showRichOrPlainText(_ text: String, for item: FileItem) {
         currentSourceText = text
-        currentRichFormat = RichTextPreviewFormat.format(for: item.url)
+        currentRichFormat = RichTextPreviewFormat.format(for: previewNameURL(for: item))
 
         if currentRichFormat != nil {
             modeControl.isHidden = false
@@ -114,6 +218,13 @@ final class FilePreviewPaneView: NSView {
         }
 
         showSourceText(text)
+    }
+
+    private func previewNameURL(for item: FileItem) -> URL {
+        if item.isArchiveEntry {
+            return URL(fileURLWithPath: item.name)
+        }
+        return item.url
     }
 
     private func showRenderedPreview(for item: FileItem, format: RichTextPreviewFormat, source: String) {
@@ -153,6 +264,7 @@ final class FilePreviewPaneView: NSView {
 
     private func setup() {
         wantsLayer = true
+        layer?.masksToBounds = true
         layer?.backgroundColor = PreviewTheme.secondaryBackground.withAlphaComponent(0.35).cgColor
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -173,34 +285,63 @@ final class FilePreviewPaneView: NSView {
         modeControl.action = #selector(modeChanged)
         modeControl.isHidden = true
 
+        openButton.translatesAutoresizingMaskIntoConstraints = false
+        openButton.bezelStyle = .rounded
+        openButton.controlSize = .small
+        openButton.font = .systemFont(ofSize: 11)
+        openButton.target = self
+        openButton.action = #selector(openCurrentItemExternally)
+        openButton.isHidden = true
+
         topSeparator.boxType = .separator
         topSeparator.translatesAutoresizingMaskIntoConstraints = false
 
         contentContainer.translatesAutoresizingMaskIntoConstraints = false
+        contentContainer.wantsLayer = true
+        contentContainer.layer?.masksToBounds = true
 
         configureSourceTextScroll(sourceScrollView, textView: sourceTextView)
         configureRenderedTextScroll(renderedScrollView, textView: renderedTextView)
 
+        imageScrollView.translatesAutoresizingMaskIntoConstraints = false
+        imageScrollView.hasVerticalScroller = true
+        imageScrollView.hasHorizontalScroller = true
+        imageScrollView.autohidesScrollers = true
+        imageScrollView.borderType = .noBorder
+        imageScrollView.drawsBackground = false
+        imagePreviewView.imageScaling = .scaleProportionallyDown
+        imagePreviewView.imageAlignment = .alignCenter
+        imageScrollView.documentView = imagePreviewView
+
         svgImageView.translatesAutoresizingMaskIntoConstraints = false
-        svgImageView.imageScaling = .scaleProportionallyUpOrDown
+        svgImageView.imageScaling = .scaleProportionallyDown
         svgImageView.imageAlignment = .alignCenter
+        svgImageView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        svgImageView.setContentHuggingPriority(.defaultLow, for: .vertical)
+        svgImageView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        svgImageView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 
         placeholderView.translatesAutoresizingMaskIntoConstraints = false
 
         addSubview(titleLabel)
+        addSubview(openButton)
         addSubview(modeControl)
         addSubview(subtitleLabel)
         addSubview(topSeparator)
         addSubview(contentContainer)
         contentContainer.addSubview(sourceScrollView)
         contentContainer.addSubview(renderedScrollView)
+        contentContainer.addSubview(imageScrollView)
         contentContainer.addSubview(svgImageView)
         contentContainer.addSubview(placeholderView)
 
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: modeControl.leadingAnchor, constant: -8),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: openButton.leadingAnchor, constant: -8),
+
+            openButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
+            openButton.trailingAnchor.constraint(equalTo: modeControl.leadingAnchor, constant: -6),
 
             modeControl.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
             modeControl.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
@@ -228,6 +369,11 @@ final class FilePreviewPaneView: NSView {
             renderedScrollView.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor),
             renderedScrollView.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor),
             renderedScrollView.bottomAnchor.constraint(equalTo: contentContainer.bottomAnchor),
+
+            imageScrollView.topAnchor.constraint(equalTo: contentContainer.topAnchor),
+            imageScrollView.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor),
+            imageScrollView.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor),
+            imageScrollView.bottomAnchor.constraint(equalTo: contentContainer.bottomAnchor),
 
             svgImageView.topAnchor.constraint(equalTo: contentContainer.topAnchor, constant: 12),
             svgImageView.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: 12),
@@ -328,6 +474,46 @@ final class FilePreviewPaneView: NSView {
         renderedTextView.scrollToBeginningOfDocument(nil)
     }
 
+    private func showImagePreview(_ image: NSImage) {
+        hideAllContentViews()
+        imageScrollView.isHidden = false
+
+        layoutSubtreeIfNeeded()
+        let bounds = contentContainer.bounds.size
+        let available = NSSize(width: max(1, bounds.width - 24), height: max(1, bounds.height - 24))
+        let scaled = scaledImage(image, toFit: available)
+        imagePreviewView.frame = NSRect(origin: .zero, size: scaled.size)
+        imagePreviewView.image = scaled
+        imageScrollView.documentView = imagePreviewView
+        imageScrollView.reflectScrolledClipView(imageScrollView.contentView)
+    }
+
+    private func scaledImage(_ image: NSImage, toFit containerSize: NSSize) -> NSImage {
+        let imageSize = image.size
+        guard imageSize.width > 0, imageSize.height > 0,
+              containerSize.width > 0, containerSize.height > 0 else {
+            return image
+        }
+
+        let scale = min(containerSize.width / imageSize.width, containerSize.height / imageSize.height, 1)
+        let targetSize = NSSize(
+            width: max(1, floor(imageSize.width * scale)),
+            height: max(1, floor(imageSize.height * scale))
+        )
+
+        let scaled = NSImage(size: targetSize)
+        scaled.lockFocus()
+        NSGraphicsContext.current?.imageInterpolation = .high
+        image.draw(
+            in: NSRect(origin: .zero, size: targetSize),
+            from: NSRect(origin: .zero, size: imageSize),
+            operation: .copy,
+            fraction: 1
+        )
+        scaled.unlockFocus()
+        return scaled
+    }
+
     private func showSVGPreview(for url: URL, source: String) {
         hideAllContentViews()
         svgImageView.isHidden = false
@@ -361,6 +547,7 @@ final class FilePreviewPaneView: NSView {
     private func hideAllContentViews() {
         sourceScrollView.isHidden = true
         renderedScrollView.isHidden = true
+        imageScrollView.isHidden = true
         svgImageView.isHidden = true
         qlPreviewView?.isHidden = true
         placeholderView.isHidden = true

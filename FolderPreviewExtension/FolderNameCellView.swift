@@ -27,10 +27,10 @@ final class FolderNameCellView: NSTableCellView {
         isExpanded: Bool,
         textSize: PreviewTextSize
     ) {
-        isFolderRow = item.isDirectory
+        isFolderRow = item.isContainer
         indentConstraint?.constant = PreviewTheme.treeIndent(for: depth) + 4
 
-        if item.isDirectory {
+        if item.isContainer {
             disclosureView.alphaValue = 1
             let symbol = isExpanded ? "chevron.down" : "chevron.right"
             disclosureView.image = NSImage(
@@ -53,7 +53,7 @@ final class FolderNameCellView: NSTableCellView {
             nameField.stringValue = item.name
         }
 
-        fileIconView.image = FileIconCache.shared.icon(for: item.url.path)
+        fileIconView.image = FileIconCache.shared.icon(for: item)
         window?.invalidateCursorRects(for: self)
     }
 

@@ -38,7 +38,10 @@ fastlane/test_output
 iOSInjectionProject/
 
 # Cursor / local assets (not part of source)
-.cursor/
+.cursor/*
+!.cursor/hooks.json
+!.cursor/hooks/
+!.cursor/hooks/**
 
 # Temporary
 *.tmp

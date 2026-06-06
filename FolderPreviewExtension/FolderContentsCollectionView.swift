@@ -109,6 +109,29 @@ final class FolderContentsCollectionView: NSView, NSCollectionViewDataSource, NS
     func collectionView(_ collectionView: NSCollectionView, didDeselectItemsAt indexPaths: Set<IndexPath>) {
         // Keep preview visible until another item is selected.
     }
+
+    func openItem(at windowPoint: NSPoint) {
+        let point = convert(windowPoint, from: nil)
+        guard bounds.contains(point) else { return }
+
+        let pointInCollection = collectionView.convert(windowPoint, from: nil)
+        guard let indexPath = collectionView.indexPathForItem(at: pointInCollection),
+              items.indices.contains(indexPath.item) else { return }
+
+        openItem(at: indexPath)
+    }
+
+    func openSelectedItem() {
+        guard let indexPath = collectionView.selectionIndexPaths.first else { return }
+        openItem(at: indexPath)
+    }
+
+    private func openItem(at indexPath: IndexPath) {
+        guard items.indices.contains(indexPath.item) else { return }
+        let item = items[indexPath.item]
+        if item.isArchiveEntry, item.isContainer { return }
+        FileItemLauncher.open(item)
+    }
 }
 
 final class FolderIconItem: NSCollectionViewItem {
@@ -178,15 +201,7 @@ final class FolderIconItem: NSCollectionViewItem {
 
         iconWidthConstraint?.constant = iconSize
         iconHeightConstraint?.constant = iconSize
-        iconView.image = FileIconCache.shared.icon(for: item.url.path)
-
-        if item.supportsThumbnail {
-            ThumbnailProvider.shared.thumbnail(for: item.url, size: iconSize) { [weak self] image in
-                if let image {
-                    self?.iconView.image = image
-                }
-            }
-        }
+        iconView.image = FileIconCache.shared.icon(for: item)
     }
 
     override var isSelected: Bool {

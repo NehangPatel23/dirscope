@@ -36,7 +36,10 @@
 		B10000000000000000000008 /* PreviewTableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000011 /* PreviewTableHeaderView.swift */; };
 		B10000000000000000000009 /* PreviewFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000012 /* PreviewFooterView.swift */; };
 		B10000000000000000000011 /* ArchiveContentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000018 /* ArchiveContentLoader.swift */; };
+		B1000000000000000000001A /* ZipArchiveReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000028 /* ZipArchiveReader.swift */; };
+		B1000000000000000000001B /* ArchiveSandboxAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000029 /* ArchiveSandboxAccess.swift */; };
 		B10000000000000000000012 /* FileIconCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000019 /* FileIconCache.swift */; };
+		B1000000000000000000001C /* FileItemLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000002A /* FileItemLauncher.swift */; };
 		B10000000000000000000013 /* FilePreviewPaneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000020 /* FilePreviewPaneView.swift */; };
 		B10000000000000000000014 /* InlineFilePreviewLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000021 /* InlineFilePreviewLoader.swift */; };
 		B10000000000000000000015 /* RichTextPreviewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000022 /* RichTextPreviewSupport.swift */; };
@@ -48,6 +51,8 @@
 		B1000000000000000000000F /* FolderTreeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000016 /* FolderTreeModel.swift */; };
 		B10000000000000000000010 /* FolderNameCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000017 /* FolderNameCellView.swift */; };
 		B10000000000000000000019 /* SharedPreferencesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000027 /* SharedPreferencesStore.swift */; };
+		B1000000000000000000001D /* ArchiveEntryOpenBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000002B /* ArchiveEntryOpenBridge.swift */; };
+		A10000000000000000000021 /* ArchiveEntryOpenBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000002B /* ArchiveEntryOpenBridge.swift */; };
 		B10000000000000000000006 /* FolderPreviewExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B30000000000000000000001 /* FolderPreviewExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -94,6 +99,7 @@
 		A20000000000000000000012 /* BehaviorsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BehaviorsSettingsView.swift; sourceTree = "<group>"; };
 		A20000000000000000000013 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
 		A20000000000000000000014 /* FolderPreviewApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FolderPreviewApp.entitlements; sourceTree = "<group>"; };
+		A20000000000000000000035 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A30000000000000000000001 /* FolderPreviewApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FolderPreviewApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000001 /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* FolderContentsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderContentsTableView.swift; sourceTree = "<group>"; };
@@ -109,7 +115,11 @@
 		B20000000000000000000011 /* PreviewTableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewTableHeaderView.swift; sourceTree = "<group>"; };
 		B20000000000000000000012 /* PreviewFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewFooterView.swift; sourceTree = "<group>"; };
 		B20000000000000000000018 /* ArchiveContentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveContentLoader.swift; sourceTree = "<group>"; };
+		B20000000000000000000028 /* ZipArchiveReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipArchiveReader.swift; sourceTree = "<group>"; };
+		B20000000000000000000029 /* ArchiveSandboxAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveSandboxAccess.swift; sourceTree = "<group>"; };
 		B20000000000000000000019 /* FileIconCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileIconCache.swift; sourceTree = "<group>"; };
+		B2000000000000000000002A /* FileItemLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileItemLauncher.swift; sourceTree = "<group>"; };
+		B2000000000000000000002B /* ArchiveEntryOpenBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveEntryOpenBridge.swift; sourceTree = "<group>"; };
 		B20000000000000000000020 /* FilePreviewPaneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePreviewPaneView.swift; sourceTree = "<group>"; };
 		B20000000000000000000021 /* InlineFilePreviewLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InlineFilePreviewLoader.swift; sourceTree = "<group>"; };
 		B20000000000000000000022 /* RichTextPreviewSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichTextPreviewSupport.swift; sourceTree = "<group>"; };
@@ -170,6 +180,7 @@
 				A50000000000000000000010 /* Settings */,
 				A2000000000000000000000D /* Assets.xcassets */,
 				A20000000000000000000014 /* FolderPreviewApp.entitlements */,
+				A20000000000000000000035 /* Info.plist */,
 			);
 			path = FolderPreviewApp;
 			sourceTree = "<group>";
@@ -209,6 +220,9 @@
 				B20000000000000000000003 /* FileItem.swift */,
 				B20000000000000000000004 /* FolderContentLoader.swift */,
 				B20000000000000000000018 /* ArchiveContentLoader.swift */,
+				B2000000000000000000002B /* ArchiveEntryOpenBridge.swift */,
+				B20000000000000000000028 /* ZipArchiveReader.swift */,
+				B20000000000000000000029 /* ArchiveSandboxAccess.swift */,
 				B20000000000000000000008 /* PreviewSettings.swift */,
 				B20000000000000000000027 /* SharedPreferencesStore.swift */,
 				B20000000000000000000009 /* PreviewColumn.swift */,
@@ -231,6 +245,7 @@
 				B20000000000000000000016 /* FolderTreeModel.swift */,
 				B20000000000000000000017 /* FolderNameCellView.swift */,
 				B20000000000000000000019 /* FileIconCache.swift */,
+				B2000000000000000000002A /* FileItemLauncher.swift */,
 		B20000000000000000000020 /* FilePreviewPaneView.swift */,
 		B20000000000000000000006 /* Info.plist */,
 				B20000000000000000000007 /* FolderPreviewExtension.entitlements */,
@@ -355,6 +370,7 @@
 				A10000000000000000000013 /* GeneralSettingsView.swift in Sources */,
 				A10000000000000000000014 /* PreviewSettings.swift in Sources */,
 				A10000000000000000000018 /* SharedPreferencesStore.swift in Sources */,
+				A10000000000000000000021 /* ArchiveEntryOpenBridge.swift in Sources */,
 				A10000000000000000000015 /* PreviewColumn.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -372,14 +388,18 @@
 				B1000000000000000000000F /* FolderTreeModel.swift in Sources */,
 				B10000000000000000000010 /* FolderNameCellView.swift in Sources */,
 				B10000000000000000000012 /* FileIconCache.swift in Sources */,
+				B1000000000000000000001C /* FileItemLauncher.swift in Sources */,
 		B10000000000000000000013 /* FilePreviewPaneView.swift in Sources */,
 		B10000000000000000000014 /* InlineFilePreviewLoader.swift in Sources */,
 				B10000000000000000000015 /* RichTextPreviewSupport.swift in Sources */,
 				B10000000000000000000003 /* FileItem.swift in Sources */,
 				B10000000000000000000004 /* FolderContentLoader.swift in Sources */,
 				B10000000000000000000011 /* ArchiveContentLoader.swift in Sources */,
+				B1000000000000000000001A /* ZipArchiveReader.swift in Sources */,
+				B1000000000000000000001B /* ArchiveSandboxAccess.swift in Sources */,
 				B1000000000000000000000B /* PreviewSettings.swift in Sources */,
 				B10000000000000000000019 /* SharedPreferencesStore.swift in Sources */,
+				B1000000000000000000001D /* ArchiveEntryOpenBridge.swift in Sources */,
 				B1000000000000000000000C /* PreviewColumn.swift in Sources */,
 				B1000000000000000000000D /* PreviewTheme.swift in Sources */,
 			);
@@ -526,6 +546,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FolderPreviewApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Dirscope;
 				INFOPLIST_KEY_CFBundleName = Dirscope;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -554,6 +575,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FolderPreviewApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Dirscope;
 				INFOPLIST_KEY_CFBundleName = Dirscope;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";

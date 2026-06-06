@@ -51,7 +51,6 @@ struct FileItem: Identifiable, Hashable {
     }
 
     var formattedSize: String {
-        guard !isDirectory else { return "--" }
         guard let size else { return "--" }
         return ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
     }
@@ -66,9 +65,26 @@ struct FileItem: Identifiable, Hashable {
         return "\(pixelWidth) × \(pixelHeight)"
     }
 
+    /// A `.zip` (or other supported archive) sitting inside a normal folder.
+    var isBrowsableArchive: Bool {
+        guard !isDirectory else { return false }
+        return ArchiveContentLoader.isArchive(URL(fileURLWithPath: name))
+    }
+
+    /// Folders and archives that can be expanded in the list.
+    var isContainer: Bool {
+        isDirectory || isBrowsableArchive
+    }
+
+    private var previewFileExtension: String {
+        let ext = URL(fileURLWithPath: name).pathExtension
+        if !ext.isEmpty { return ext }
+        return url.pathExtension
+    }
+
     var supportsThumbnail: Bool {
-        guard !isDirectory, !isArchiveEntry else { return false }
-        guard let type = UTType(filenameExtension: url.pathExtension) else { return false }
+        guard !isDirectory else { return false }
+        guard let type = UTType(filenameExtension: previewFileExtension) else { return false }
         return type.conforms(to: .image)
             || type.conforms(to: .pdf)
             || type.identifier == "public.svg-image"
@@ -134,8 +150,8 @@ enum PreviewSortColumn: String {
     }
 
     func compare(_ lhs: FileItem, _ rhs: FileItem) -> ComparisonResult {
-        if PreviewSettings.keepFoldersOnTop, lhs.isDirectory != rhs.isDirectory {
-            return lhs.isDirectory ? .orderedAscending : .orderedDescending
+        if PreviewSettings.keepFoldersOnTop, lhs.isContainer != rhs.isContainer {
+            return lhs.isContainer ? .orderedAscending : .orderedDescending
         }
 
         switch self {

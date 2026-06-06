@@ -100,7 +100,7 @@ enum PreviewSettings {
     }
 
     static var showThumbnails: Bool {
-        get { store.object(forKey: "showThumbnails") as? Bool ?? true }
+        get { store.object(forKey: "showThumbnails") as? Bool ?? false }
         set { store.set(newValue, forKey: "showThumbnails"); syncAppStorage(key: "showThumbnails", value: newValue) }
     }
 
@@ -160,10 +160,15 @@ enum PreviewSettings {
 
     static var visibleColumnIDs: [String] {
         get {
-            store.object(forKey: "visibleColumnIDs") as? [String]
+            let stored = store.object(forKey: "visibleColumnIDs") as? [String]
                 ?? PreviewColumn.defaultVisible.map(\.rawValue)
+            return stored.filter { $0 != PreviewColumn.preview.rawValue }
         }
-        set { store.set(newValue, forKey: "visibleColumnIDs"); syncAppStorage(key: "visibleColumnIDs", value: newValue) }
+        set {
+            let filtered = newValue.filter { $0 != PreviewColumn.preview.rawValue }
+            store.set(filtered, forKey: "visibleColumnIDs")
+            syncAppStorage(key: "visibleColumnIDs", value: filtered)
+        }
     }
 
     static func isColumnVisible(_ column: PreviewColumn) -> Bool {
@@ -187,11 +192,12 @@ enum PreviewSettings {
     static func registerDefaults() {
         if !SharedPreferencesStore.isQuickLookExtension {
             migrateLegacyPreferencesIfNeeded()
+            migrateDeprecatedDisplaySettingsIfNeeded()
         }
         store.registerDefaults([
             "viewMode": PreviewViewMode.list.rawValue,
             "textSize": PreviewTextSize.small.rawValue,
-            "showThumbnails": true,
+            "showThumbnails": false,
             "showPathBar": true,
             "showHiddenFiles": false,
             "keepFoldersOnTop": true,
@@ -257,5 +263,20 @@ enum PreviewSettings {
         for (key, value) in imported where store.object(forKey: key) == nil {
             store.set(value, forKey: key)
         }
+    }
+
+    private static func migrateDeprecatedDisplaySettingsIfNeeded() {
+        guard store.object(forKey: "displaySettingsMigratedV2") == nil else { return }
+
+        if showThumbnails {
+            showThumbnails = false
+        }
+
+        if let stored = store.object(forKey: "visibleColumnIDs") as? [String],
+           stored.contains(PreviewColumn.preview.rawValue) {
+            visibleColumnIDs = stored.filter { $0 != PreviewColumn.preview.rawValue }
+        }
+
+        store.set(true, forKey: "displaySettingsMigratedV2")
     }
 }

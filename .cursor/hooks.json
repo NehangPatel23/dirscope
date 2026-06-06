@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/rebuild-after-edit.sh",
+        "timeout": 10,
+        "matcher": ".*\\.(swift|plist|entitlements|pbxproj)$"
+      }
+    ]
+  }
+}

@@ -114,8 +114,8 @@ enum FolderContentLoader {
 
     private static func defaultSorted(_ items: [FileItem]) -> [FileItem] {
         items.sorted { lhs, rhs in
-            if PreviewSettings.keepFoldersOnTop, lhs.isDirectory != rhs.isDirectory {
-                return lhs.isDirectory && !rhs.isDirectory
+            if PreviewSettings.keepFoldersOnTop, lhs.isContainer != rhs.isContainer {
+                return lhs.isContainer && !rhs.isContainer
             }
             return lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
         }

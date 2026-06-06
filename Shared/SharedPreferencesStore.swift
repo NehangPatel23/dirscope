@@ -80,16 +80,34 @@ final class SharedPreferencesStore {
 
     func set(_ value: Any?, forKey key: String) {
         lock.lock()
+        let previous = values[key]
         if let value {
             values[key] = value
         } else {
             values.removeValue(forKey: key)
         }
+        let changed = !Self.valuesAreEqual(previous, value)
         let snapshot = values
         lock.unlock()
 
+        guard changed else { return }
+
         Self.writeToDisk(snapshot, at: Self.fileURL)
         Self.notifySettingsDidChange()
+    }
+
+    private static func valuesAreEqual(_ lhs: Any?, _ rhs: Any?) -> Bool {
+        switch (lhs, rhs) {
+        case (nil, nil):
+            return true
+        case let (left?, right?):
+            if let leftObject = left as? NSObject, let rightObject = right as? NSObject {
+                return leftObject.isEqual(rightObject)
+            }
+            return false
+        default:
+            return false
+        }
     }
 
     /// Fills missing keys in memory. Only the host app persists newly registered defaults.

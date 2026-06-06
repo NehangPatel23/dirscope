@@ -132,10 +132,15 @@ final class FolderContentsTableView: NSTableView {
         dataSource = self
         delegate = self
         target = self
-        doubleAction = #selector(handleDoubleClick)
-
+        doubleAction = #selector(handleDoubleClick(_:))
         reloadColumnLayout()
         applyStyle()
+    }
+
+    @objc private func handleDoubleClick(_ sender: Any?) {
+        let row = selectedRow
+        guard row >= 0 else { return }
+        openItem(atRow: row)
     }
 
     private func applyStyle() {
@@ -144,7 +149,7 @@ final class FolderContentsTableView: NSTableView {
 
     private func toggleFolder(atRow row: Int) {
         guard treeModel.displayRows.indices.contains(row) else { return }
-        guard treeModel.displayRows[row].item.isDirectory else { return }
+        guard treeModel.displayRows[row].item.isContainer else { return }
 
         guard treeModel.toggleFolder(itemID: treeModel.displayRows[row].item.id) != nil else { return }
 
@@ -158,21 +163,24 @@ final class FolderContentsTableView: NSTableView {
     override func mouseDown(with event: NSEvent) {
         let point = convert(event.locationInWindow, from: nil)
         let row = row(at: point)
-        guard row >= 0 else {
-            super.mouseDown(with: event)
-            return
-        }
 
-        let columnIndex = column(at: point)
-        if columnIndex >= 0,
-           let columnID = PreviewColumn(rawValue: tableColumns[columnIndex].identifier.rawValue),
-           columnID == .name,
-           treeModel.displayRows.indices.contains(row),
-           treeModel.displayRows[row].item.isDirectory,
-           let cell = view(atColumn: columnIndex, row: row, makeIfNecessary: false) as? FolderNameCellView,
-           cell.containsDisclosure(atWindowPoint: event.locationInWindow) {
-            toggleFolder(atRow: row)
-            return
+        if row >= 0, treeModel.displayRows.indices.contains(row) {
+            let columnIndex = column(at: point)
+            if event.clickCount == 1,
+               columnIndex >= 0,
+               let columnID = PreviewColumn(rawValue: tableColumns[columnIndex].identifier.rawValue),
+               columnID == .name,
+               treeModel.displayRows[row].item.isContainer,
+               let cell = view(atColumn: columnIndex, row: row, makeIfNecessary: false) as? FolderNameCellView,
+               cell.containsDisclosure(atWindowPoint: event.locationInWindow) {
+                toggleFolder(atRow: row)
+                return
+            }
+
+            if event.clickCount == 2 {
+                openItem(atRow: row)
+                return
+            }
         }
 
         super.mouseDown(with: event)
@@ -195,10 +203,16 @@ final class FolderContentsTableView: NSTableView {
         super.cursorUpdate(with: event)
     }
 
-    @objc private func handleDoubleClick() {
-        let row = clickedRow
+    func openItem(atRow row: Int) {
         guard treeModel.displayRows.indices.contains(row) else { return }
-        NSWorkspace.shared.open(treeModel.displayRows[row].item.url)
+        let item = treeModel.displayRows[row].item
+
+        if item.isArchiveEntry, item.isContainer {
+            toggleFolder(atRow: row)
+            return
+        }
+
+        FileItemLauncher.open(item)
     }
 }
 
@@ -309,6 +323,7 @@ private final class IndentedPreviewCell: NSTableCellView {
     private var leadingConstraint: NSLayoutConstraint?
     private var widthConstraint: NSLayoutConstraint?
     private var heightConstraint: NSLayoutConstraint?
+    private var representedItemID: String?
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -335,19 +350,38 @@ private final class IndentedPreviewCell: NSTableCellView {
 
     func configure(item: FileItem, depth: Int, textSize: PreviewTextSize, showThumbnails: Bool) {
         let size = textSize.thumbnailSize
+        representedItemID = item.id
         leadingConstraint?.constant = PreviewTheme.treeIndent(for: depth) + 8
         widthConstraint?.constant = size
         heightConstraint?.constant = size
 
-        if !item.isDirectory, item.supportsThumbnail, showThumbnails {
-            let itemID = item.id
-            ThumbnailProvider.shared.thumbnail(for: item.url, size: size) { [weak self] image in
-                guard let self, let image,
-                      self.thumbnailView.superview != nil else { return }
-                self.thumbnailView.image = image
-            }
-        } else {
-            thumbnailView.image = FileIconCache.shared.icon(for: item.url.path)
+        guard showThumbnails else {
+            thumbnailView.image = FileIconCache.shared.icon(for: item)
+            return
+        }
+
+        if item.isContainer {
+            thumbnailView.image = nil
+            return
+        }
+
+        guard item.supportsThumbnail else {
+            thumbnailView.image = nil
+            return
+        }
+
+        if let cached = ThumbnailProvider.shared.cachedThumbnail(for: item, size: size) {
+            thumbnailView.image = cached
+            return
+        }
+
+        thumbnailView.image = nil
+        ThumbnailProvider.shared.thumbnail(for: item, size: size) { [weak self] image in
+            guard let self,
+                  self.representedItemID == item.id,
+                  let image,
+                  self.thumbnailView.superview != nil else { return }
+            self.thumbnailView.image = image
         }
     }
 }

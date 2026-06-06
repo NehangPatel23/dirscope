@@ -37,7 +37,7 @@ final class FolderTreeModel {
         guard let parentRow = displayRows.firstIndex(where: { $0.item.id == itemID }) else { return nil }
 
         let row = displayRows[parentRow]
-        guard row.item.isDirectory else { return nil }
+        guard row.item.isContainer else { return nil }
 
         if expandedIDs.contains(itemID) {
             collapse(itemID: itemID)
@@ -78,7 +78,7 @@ final class FolderTreeModel {
     private func autoExpandAll() {
         func expandDirectories(_ items: [FileItem], depth: Int) {
             guard depth < PreviewSettings.folderDepth else { return }
-            for item in items where item.isDirectory {
+            for item in items where item.isContainer {
                 if childrenByID[item.id] == nil {
                     childrenByID[item.id] = loadChildren(for: item)
                 }
@@ -93,8 +93,19 @@ final class FolderTreeModel {
 
     private func loadChildren(for item: FileItem) -> [FileItem] {
         let children: [FileItem]
-        if item.isArchiveEntry {
+        if item.isBrowsableArchive && item.isArchiveEntry {
+            guard let nestedArchive = ArchiveContentLoader.extractEntryToTempFile(
+                from: item.url,
+                path: item.relativePath,
+                filename: item.name
+            ) else {
+                return []
+            }
+            children = ArchiveContentLoader.loadContents(of: nestedArchive)
+        } else if item.isArchiveEntry {
             children = ArchiveContentLoader.loadChildren(in: item.url, relativePath: item.relativePath)
+        } else if item.isBrowsableArchive {
+            children = ArchiveContentLoader.loadContents(of: item.url)
         } else {
             children = FolderContentLoader.loadImmediateChildren(of: item.url)
         }
@@ -115,7 +126,7 @@ final class FolderTreeModel {
 
         func appendItems(_ items: [FileItem], depth: Int) {
             for item in items {
-                let expanded = item.isDirectory && expandedIDs.contains(item.id)
+                let expanded = item.isContainer && expandedIDs.contains(item.id)
                 rows.append(DisplayRow(item: item, depth: depth, isExpanded: expanded))
 
                 if expanded, let children = childrenByID[item.id] {

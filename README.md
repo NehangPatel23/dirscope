@@ -257,7 +257,7 @@ plutil -p ~/Library/Containers/com.folderpreview.app.preview/Data/Library/Applic
 
 ### Regenerating icons
 
-App icons are generated from a source image bundled in the Cursor assets folder. To regenerate:
+App icons are generated from `scripts/icon-source.png`. To regenerate:
 
 ```bash
 ./scripts/generate-icons.sh

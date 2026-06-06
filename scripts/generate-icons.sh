@@ -3,10 +3,12 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SRC="${1:-$ROOT/../.cursor/projects/Users-nehangpatel-Desktop-Folder-Preview-App/assets/image-229508e0-1f30-4951-82c2-95a9ee9d5ec9.png}"
+SRC="${1:-$ROOT/scripts/icon-source.png}"
 
 if [[ ! -f "$SRC" ]]; then
-  SRC="/Users/nehangpatel/.cursor/projects/Users-nehangpatel-Desktop-Folder-Preview-App/assets/image-229508e0-1f30-4951-82c2-95a9ee9d5ec9.png"
+  echo "Icon source not found: $SRC" >&2
+  echo "Pass a path to a 1024×682 (or square) PNG/JPEG source image." >&2
+  exit 1
 fi
 
 ICONSET="$ROOT/FolderPreviewApp/Assets.xcassets/AppIcon.appiconset"

@@ -214,7 +214,7 @@ These are unchanged from early development; the user-facing name is **Dirscope**
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/dirscope.git
+git clone https://github.com/NehangPatel23/dirscope.git
 cd dirscope
 
 # Build and install

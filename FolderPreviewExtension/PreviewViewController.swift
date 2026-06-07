@@ -25,10 +25,17 @@ final class PreviewViewController: NSViewController, QLPreviewingController, QLP
     }
 
     override func loadView() {
-        view = NSView(frame: NSRect(origin: .zero, size: PreviewLayout.contentSize))
+        let rootView = PreviewRootView(frame: NSRect(origin: .zero, size: PreviewLayout.contentSize))
+        view = rootView
         preferredContentSize = PreviewLayout.contentSize
         PreviewSettings.registerDefaults()
         setupUI()
+        rootView.onEffectiveAppearanceChanged = { [weak self] in
+            guard let self else { return }
+            PreviewTheme.refreshSurfaceBackground(on: self.view)
+            self.previewPane.refreshAppearance()
+            self.footerView.refreshAppearance()
+        }
 
         NotificationCenter.default.addObserver(
             self,
@@ -121,8 +128,7 @@ final class PreviewViewController: NSViewController, QLPreviewingController, QLP
     }
 
     private func setupUI() {
-        view.wantsLayer = true
-        view.layer?.backgroundColor = PreviewTheme.backgroundColor.cgColor
+        PreviewTheme.applySurfaceBackground(to: view)
 
         tableScrollView = NSScrollView()
         tableScrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -430,6 +436,15 @@ final class PreviewViewController: NSViewController, QLPreviewingController, QLP
         }
         NotificationCenter.default.removeObserver(self)
         securityScopedURL?.stopAccessingSecurityScopedResource()
+    }
+}
+
+private final class PreviewRootView: NSView {
+    var onEffectiveAppearanceChanged: (() -> Void)?
+
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        onEffectiveAppearanceChanged?()
     }
 }
 

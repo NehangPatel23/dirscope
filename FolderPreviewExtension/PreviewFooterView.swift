@@ -53,7 +53,18 @@ final class PreviewFooterView: NSView {
         zoomSlider.isHidden = viewMode != .icon
     }
 
+    func refreshAppearance() {
+        PreviewTheme.refreshSurfaceBackground(on: self)
+    }
+
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        refreshAppearance()
+    }
+
     private func setup() {
+        PreviewTheme.applySurfaceBackground(to: self)
+
         topSeparator.boxType = .separator
         topSeparator.translatesAutoresizingMaskIntoConstraints = false
 

@@ -40,6 +40,17 @@ enum PreviewTheme {
         scrollView.borderType = .noBorder
         scrollView.contentView.drawsBackground = false
     }
+
+    /// Fills a view with `windowBackgroundColor`, refreshing when light/dark mode changes.
+    static func applySurfaceBackground(to view: NSView) {
+        view.wantsLayer = true
+        view.layerContentsRedrawPolicy = .onSetNeedsDisplay
+        refreshSurfaceBackground(on: view)
+    }
+
+    static func refreshSurfaceBackground(on view: NSView) {
+        view.layer?.backgroundColor = backgroundColor.cgColor
+    }
 }
 
 enum PreviewLayout {

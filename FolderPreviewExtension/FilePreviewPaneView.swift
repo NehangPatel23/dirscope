@@ -262,19 +262,30 @@ final class FilePreviewPaneView: NSView {
         placeholderView.isHidden = false
     }
 
+    func refreshAppearance() {
+        PreviewTheme.refreshSurfaceBackground(on: self)
+    }
+
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        refreshAppearance()
+    }
+
     private func setup() {
         wantsLayer = true
         layer?.masksToBounds = true
-        layer?.backgroundColor = PreviewTheme.secondaryBackground.withAlphaComponent(0.35).cgColor
+        PreviewTheme.applySurfaceBackground(to: self)
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = .systemFont(ofSize: 12, weight: .semibold)
         titleLabel.lineBreakMode = .byTruncatingMiddle
         titleLabel.textColor = .labelColor
+        titleLabel.backgroundColor = .clear
 
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
         subtitleLabel.font = .systemFont(ofSize: 11)
         subtitleLabel.textColor = .secondaryLabelColor
+        subtitleLabel.backgroundColor = .clear
         subtitleLabel.lineBreakMode = .byTruncatingTail
 
         modeControl.segmentCount = 2
@@ -585,6 +596,8 @@ private final class PreviewPlaceholderView: NSView {
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = .systemFont(ofSize: 12, weight: .semibold)
+        titleLabel.textColor = .labelColor
+        titleLabel.backgroundColor = .clear
         titleLabel.alignment = .center
         titleLabel.maximumNumberOfLines = 2
         titleLabel.lineBreakMode = .byTruncatingMiddle
@@ -592,6 +605,7 @@ private final class PreviewPlaceholderView: NSView {
         messageLabel.translatesAutoresizingMaskIntoConstraints = false
         messageLabel.font = .systemFont(ofSize: 11)
         messageLabel.textColor = .secondaryLabelColor
+        messageLabel.backgroundColor = .clear
         messageLabel.alignment = .center
 
         addSubview(iconView)

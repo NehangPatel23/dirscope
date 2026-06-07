@@ -30,7 +30,8 @@ Shared code (models, settings, theme, content loaders) lives in the `Shared/` fo
 ### Quick Look preview
 
 - **Folder browsing** — list or icon view of any folder selected in Finder
-- **Zip archive browsing** — open `.zip` files in Quick Look without extracting; expand folders and nested archives in-place using disclosure arrows
+- **Zip archive browsing** — open `.zip` files in Quick Look without extracting; expand folders and nested archives in-place using disclosure arrows; single-root wrapper folders are stripped so contents appear at the top level
+- **Archive folder metadata** — files inside zips show per-entry size and modified date; folders show aggregated totals (sum of descendant file sizes) and the latest modified date among their contents
 - **Sandbox-safe archive I/O** — in-process zip parsing and extraction (store + deflate) via `NSFileCoordinator`; no dependency on spawning `unzip` inside the extension sandbox
 - **Sortable columns** — Name, Date Modified, Date Created, Size, Kind (and more via the column picker)
 - **Customizable columns** — right-click column headers to show/hide metadata; default columns are Name, Modified, Size, and Type
@@ -39,7 +40,7 @@ Shared code (models, settings, theme, content loaders) lives in the `Shared/` fo
 - **Side-panel file preview** — select a file to preview text, Markdown, HTML, SVG, images, and other Quick Look–supported formats; archive entries are extracted on a background thread and scaled to fit the panel
 - **Open files inside archives** — double-click or use **Open** in the side panel; the entry is staged and handed to the default app (see [Archive entry open](#archive-entry-open) below)
 - **Footer toolbar** — path breadcrumb, item count, view switcher (List / Icons), and zoom slider
-- **Dark mode** — adapts to system appearance
+- **System appearance** — list, inspect panel, and footer use semantic `windowBackgroundColor` and refresh when macOS switches light/dark mode
 - **No host app required for preview** — browsing and side-panel previews run entirely in the Quick Look extension; Dirscope’s window does not need to be open
 
 ### Host app
@@ -264,6 +265,10 @@ Staging and pending requests live under the extension container:
 ```
 
 The background helper retries pending opens on short delays to avoid races with the extension’s wake request. The main Dirscope window is not shown during archive opens.
+
+### Quick Look appearance
+
+The file list, right-hand inspect panel, and footer toolbar share the same semantic window background via `PreviewTheme.applySurfaceBackground`. Layer fills update in `viewDidChangeEffectiveAppearance` so the inspect pane and footer stay in sync with light/dark mode instead of retaining a one-time tint from panel load.
 
 ### Live settings updates
 

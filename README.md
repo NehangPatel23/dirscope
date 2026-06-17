@@ -1,5 +1,9 @@
 <div align="center">
 
+<img src="docs/dirscope-logo.png" alt="Dirscope logo" width="128" />
+
+<br>
+
 # Dirscope
 
 ### Folder previews, built for Finder.

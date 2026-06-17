@@ -189,7 +189,7 @@ final class FilePreviewPaneView: NSView {
 
     private func showRichOrPlainText(_ text: String, for item: FileItem) {
         currentSourceText = text
-        currentRichFormat = RichTextPreviewFormat.format(for: previewNameURL(for: item))
+        currentRichFormat = RichTextPreviewFormat.format(forFileName: item.name)
 
         if currentRichFormat != nil {
             modeControl.isHidden = false
@@ -220,30 +220,43 @@ final class FilePreviewPaneView: NSView {
         showSourceText(text)
     }
 
-    private func previewNameURL(for item: FileItem) -> URL {
-        if item.isArchiveEntry {
-            return URL(fileURLWithPath: item.name)
-        }
-        return item.url
-    }
-
     private func showRenderedPreview(for item: FileItem, format: RichTextPreviewFormat, source: String) {
-        let parentDirectory = item.url.deletingLastPathComponent()
+        let baseURL = previewBaseURL(for: item)
 
         switch format {
         case .markdown:
-            if let attributed = RichTextPreviewRenderer.renderedMarkdown(source, baseURL: parentDirectory) {
+            if let attributed = RichTextPreviewRenderer.renderedMarkdown(source, baseURL: baseURL) {
                 showRenderedAttributedText(attributed)
             } else {
                 showSourceText(source)
             }
 
         case .html:
-            showHTMLPreview(for: item, source: source, baseURL: parentDirectory)
+            showHTMLPreview(for: item, source: source, baseURL: baseURL)
 
         case .svg:
-            showSVGPreview(for: item.url, source: source)
+            showSVGPreview(for: previewContentURL(for: item), source: source)
         }
+    }
+
+    private func previewContentURL(for item: FileItem) -> URL {
+        if item.isArchiveEntry {
+            return URL(fileURLWithPath: item.name)
+        }
+        return item.url
+    }
+
+    private func previewBaseURL(for item: FileItem) -> URL {
+        if item.isArchiveEntry,
+           let tempURL = ArchiveContentLoader.extractEntryToTempFile(
+               from: item.url,
+               path: item.relativePath,
+               filename: item.name
+           ) {
+            extractedTempURL = tempURL
+            return tempURL.deletingLastPathComponent()
+        }
+        return item.url.deletingLastPathComponent()
     }
 
     private func showHTMLPreview(for item: FileItem, source: String, baseURL: URL) {

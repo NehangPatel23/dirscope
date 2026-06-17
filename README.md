@@ -402,7 +402,7 @@ This produces:
 
 - **Zip** — listing, nested folders, nested zips, deflate extraction, image/text side-panel preview, per-entry **size/modified date** (including aggregated totals for implicit folders), and **open in default app** (via background helper) are implemented
 - **Other archive formats** — `.tar`, `.tar.gz`, `.gz`, `.7z`, and `.rar` are partially wired (external-tool fallbacks) but not as reliable as zip in the sandboxed extension
-- **HTML inside archives** — may show source text rather than a rendered page
+- **HTML inside archives** — `code.html` and similar entries support Source/Formatted preview using a staged temp base URL; complex pages with external assets may still need a browser
 - App Group entitlements are not used (requires a proper signing identity for distribution)
 - Ad-hoc code signing is used for local development builds
 

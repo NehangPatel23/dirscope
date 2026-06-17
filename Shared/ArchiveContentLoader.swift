@@ -11,6 +11,15 @@ enum ArchiveContentLoader {
         var normalizedPath: String { normalizeEntryPath(path) }
     }
 
+    private struct ListingCacheEntry {
+        let fileSize: Int64?
+        let modificationDate: TimeInterval?
+        let entries: [ListingEntry]
+    }
+
+    private static var listingCache: [String: ListingCacheEntry] = [:]
+    private static let listingCacheLock = NSLock()
+
     static func isArchive(_ url: URL) -> Bool {
         archiveFormat(for: url) != .unsupported
     }
@@ -200,19 +209,45 @@ enum ArchiveContentLoader {
     }
 
     private static func listArchiveEntries(in archiveURL: URL) -> [ListingEntry] {
+        let cacheKey = archiveURL.standardizedFileURL.path
+        let resourceValues = try? archiveURL.resourceValues(forKeys: [.fileSizeKey, .contentModificationDateKey])
+        let fileSize = resourceValues?.fileSize.map { Int64($0) }
+        let modificationDate = resourceValues?.contentModificationDate?.timeIntervalSince1970
+
+        listingCacheLock.lock()
+        if let cached = listingCache[cacheKey],
+           cached.fileSize == fileSize,
+           cached.modificationDate == modificationDate {
+            let entries = cached.entries
+            listingCacheLock.unlock()
+            return entries
+        }
+        listingCacheLock.unlock()
+
+        let entries: [ListingEntry]
         switch archiveFormat(for: archiveURL) {
         case .zip:
-            return listZipEntries(in: archiveURL)
+            entries = listZipEntries(in: archiveURL)
         case .tar:
-            return TarEntryLister.listEntries(in: archiveURL).map(listingEntryWithoutMetadata)
+            entries = TarEntryLister.listEntries(in: archiveURL).map(listingEntryWithoutMetadata)
         case .gzipSingle:
-            return [listingEntryWithoutMetadata(gzipSingleEntryName(for: archiveURL))]
+            entries = [listingEntryWithoutMetadata(gzipSingleEntryName(for: archiveURL))]
         case .sevenZip, .rar:
             guard let tool = ExternalArchiveTool.sevenZipExecutable else { return [] }
-            return SevenZipEntryLister.listEntries(in: archiveURL, tool: tool).map(listingEntryWithoutMetadata)
+            entries = SevenZipEntryLister.listEntries(in: archiveURL, tool: tool).map(listingEntryWithoutMetadata)
         case .unsupported:
             return []
         }
+
+        listingCacheLock.lock()
+        listingCache[cacheKey] = ListingCacheEntry(
+            fileSize: fileSize,
+            modificationDate: modificationDate,
+            entries: entries
+        )
+        listingCacheLock.unlock()
+
+        return entries
     }
 
     private static func listZipEntries(in archiveURL: URL) -> [ListingEntry] {

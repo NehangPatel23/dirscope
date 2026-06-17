@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import Darwin
 
 /// Stages archive entries from the sandboxed Quick Look extension and asks the host app to open them.
 enum ArchiveEntryOpenBridge {
@@ -78,6 +79,97 @@ enum ArchiveEntryOpenBridge {
         guard !isBackgroundOpenHelperMode else { return }
         guard !isBackgroundHelperProcessRunning() else { return }
         launchBackgroundOpenHelper()
+    }
+
+    struct BackgroundOpenHelperStatus {
+        let isLaunchAgentInstalled: Bool
+        let isRunning: Bool
+        let helperExecutablePath: String?
+    }
+
+    static func backgroundOpenHelperStatus() -> BackgroundOpenHelperStatus {
+        BackgroundOpenHelperStatus(
+            isLaunchAgentInstalled: isLaunchAgentInstalled(),
+            isRunning: isBackgroundHelperProcessRunning(),
+            helperExecutablePath: resolvedHelperExecutableURL()?.path
+        )
+    }
+
+    @discardableResult
+    static func reinstallBackgroundOpenHelper() -> Bool {
+        guard !SharedPreferencesStore.isQuickLookExtension else { return false }
+        guard let helperURL = resolvedHelperExecutableURL() else { return false }
+
+        let plistURL = launchAgentPlistURL()
+        do {
+            try FileManager.default.createDirectory(
+                at: plistURL.deletingLastPathComponent(),
+                withIntermediateDirectories: true
+            )
+
+            let plist: [String: Any] = [
+                "Label": launchAgentLabel,
+                "ProgramArguments": [helperURL.path, backgroundHelperArgument],
+                "RunAtLoad": true,
+                "ProcessType": "Background"
+            ]
+            let data = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
+            try data.write(to: plistURL, options: .atomic)
+
+            let target = "gui/\(getuid())/\(launchAgentLabel)"
+            runLaunchctl(arguments: ["bootout", target])
+            _ = runLaunchctl(arguments: ["bootstrap", target, plistURL.path])
+            launchBackgroundOpenHelper()
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    static func isLaunchAgentInstalled() -> Bool {
+        FileManager.default.fileExists(atPath: launchAgentPlistURL().path)
+    }
+
+    static func isBackgroundHelperRunning() -> Bool {
+        isBackgroundHelperProcessRunning()
+    }
+
+    private static func launchAgentPlistURL() -> URL {
+        FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/LaunchAgents/\(launchAgentLabel).plist")
+    }
+
+    private static func resolvedHelperExecutableURL() -> URL? {
+        let bundleExecutable = Bundle.main.bundleURL
+            .appendingPathComponent("Contents/MacOS/Dirscope")
+        if FileManager.default.isExecutableFile(atPath: bundleExecutable.path) {
+            return bundleExecutable
+        }
+
+        let installed = URL(fileURLWithPath: "/Applications/Dirscope.app/Contents/MacOS/Dirscope")
+        if FileManager.default.isExecutableFile(atPath: installed.path) {
+            return installed
+        }
+
+        return NSWorkspace.shared
+            .urlForApplication(withBundleIdentifier: hostBundleIdentifier)?
+            .appendingPathComponent("Contents/MacOS/Dirscope")
+    }
+
+    @discardableResult
+    private static func runLaunchctl(arguments: [String]) -> Int32 {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
+        process.arguments = arguments
+        process.standardOutput = Pipe()
+        process.standardError = Pipe()
+        do {
+            try process.run()
+            process.waitUntilExit()
+            return process.terminationStatus
+        } catch {
+            return -1
+        }
     }
 
     /// Called when the host app finishes launching.

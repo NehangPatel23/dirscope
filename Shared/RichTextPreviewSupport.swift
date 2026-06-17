@@ -7,16 +7,27 @@ enum RichTextPreviewFormat: String {
     case svg
 
     static func format(for url: URL) -> RichTextPreviewFormat? {
-        switch url.pathExtension.lowercased() {
-        case "md", "markdown":
-            return .markdown
-        case "html", "htm":
-            return .html
-        case "svg":
-            return .svg
-        default:
-            return nil
+        format(forFileName: url.lastPathComponent)
+    }
+
+    static func format(forFileName fileName: String) -> RichTextPreviewFormat? {
+        let lower = fileName.lowercased()
+        let ext = URL(fileURLWithPath: lower).pathExtension
+
+        if !ext.isEmpty {
+            switch ext {
+            case "md", "markdown":
+                return .markdown
+            case "html", "htm":
+                return .html
+            case "svg":
+                return .svg
+            default:
+                break
+            }
         }
+
+        return nil
     }
 
     var sourceLabel: String {

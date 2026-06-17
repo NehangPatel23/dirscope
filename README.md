@@ -401,8 +401,11 @@ This produces:
 ## Roadmap / known limitations
 
 - **Zip** — listing, nested folders, nested zips, deflate extraction, image/text side-panel preview, per-entry **size/modified date** (including aggregated totals for implicit folders), and **open in default app** (via background helper) are implemented
-- **Other archive formats** — `.tar`, `.tar.gz`, `.gz`, `.7z`, and `.rar` are partially wired (external-tool fallbacks) but not as reliable as zip in the sandboxed extension
+- **Tar / `.tar.gz`** — in-process listing and extraction with metadata (same sandbox-safe read path as zip); `.tar.xz` still falls back to `/usr/bin/tar`
+- **Other archive formats** — single `.gz` decompression and `.7z`/`.rar` listing/extraction use external-tool fallbacks and are less reliable in the sandboxed extension
 - **HTML inside archives** — `code.html` and similar entries support Source/Formatted preview using a staged temp base URL; complex pages with external assets may still need a browser
+- **Background helper status** — Behaviors settings shows whether the Launch Agent is installed and running, with a reinstall action
+- **Zip entry cache** — archive bytes and parsed listings are cached per path/size/mtime for faster repeat browsing
 - App Group entitlements are not used (requires a proper signing identity for distribution)
 - Ad-hoc code signing is used for local development builds
 
@@ -416,4 +419,8 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
-Inspired by the concept of in-Finder folder previews. Built with Swift, SwiftUI, AppKit, and the Quick Look framework.
+Dirscope is an **independent, open-source project** and is **not affiliated with, endorsed by, or derived from** any commercial product.
+
+The **idea** of previewing folder contents from Finder Quick Look was inspired by the general concept popularized by third-party macOS utilities, including [Folder Preview on the Mac App Store](https://apps.apple.com/us/app/folder-preview/id6698876601?mt=12). Dirscope was built from scratch in Swift using Apple's Quick Look APIs; it does not include, copy, or reverse-engineer code from that app or any other commercial product.
+
+Built with Swift, SwiftUI, AppKit, and the Quick Look framework.

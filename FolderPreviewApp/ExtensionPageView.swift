@@ -60,6 +60,23 @@ struct ExtensionPageView: View {
                         }
                     }
                 }
+
+                VisualGlassPanel(tint: AppBranding.accent, delay: 0.24) {
+                    HStack(alignment: .top, spacing: 14) {
+                        Image(systemName: "archivebox.fill")
+                            .font(.title2)
+                            .foregroundStyle(AppBranding.accent)
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Archives & background helper")
+                                .font(.headline)
+                            Text("Dirscope can browse zip and tar archives directly in Quick Look. Opening a file from inside an archive uses a lightweight Launch Agent installed with the app. Check Behaviors in the sidebar to confirm the helper is running, or reinstall it if open-in-app stops working.")
+                                .font(.callout)
+                                .foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
             }
         }
     }

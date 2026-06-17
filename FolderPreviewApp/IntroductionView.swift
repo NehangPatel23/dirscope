@@ -30,8 +30,16 @@ struct IntroductionView: View {
                     icon: "play.circle.fill",
                     tint: AppBranding.accent,
                     title: "How to get started",
-                    message: "Turn on the Dirscope extension once — you'll find step-by-step instructions on the Extension page. After that, highlight a folder in Finder and press Space or ⌘Y. Browse the list, click a file to preview it on the right, and double-click anything to open it normally.",
+                    message: "Turn on the Dirscope extension once — you'll find step-by-step instructions on the Extension page. After that, highlight a folder in Finder and press Space or ⌘Y. Browse the list, click a file to preview it on the right, and double-click anything to open it normally. Zip and tar archives expand in the list too; use Open on a file inside an archive to launch it in its default app.",
                     delay: 0.15
+                )
+
+                VisualStoryCard(
+                    icon: "archivebox.fill",
+                    tint: AppBranding.accentSecondary,
+                    title: "Archives in Quick Look",
+                    message: "Press Space on a .zip or .tar.gz file to browse its contents like a folder. Preview images, code, and HTML inside the archive without extracting it first. Files that need another app can be opened via the side panel — Dirscope uses a small background helper so Launch Services can reach them from the sandbox.",
+                    delay: 0.175
                 )
 
                 VisualStoryCard(

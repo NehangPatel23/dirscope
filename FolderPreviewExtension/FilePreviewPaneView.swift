@@ -1,4 +1,5 @@
 import AppKit
+import ImageIO
 import QuickLookUI
 import UniformTypeIdentifiers
 
@@ -25,6 +26,7 @@ final class FilePreviewPaneView: NSView {
     private var currentRichFormat: RichTextPreviewFormat?
     private var displayMode: FilePreviewDisplayMode = .source
     private var extractedTempURL: URL?
+    private var archiveEntryData: Data?
     private var archiveLoadToken: UUID?
 
     override init(frame frameRect: NSRect) {
@@ -39,6 +41,7 @@ final class FilePreviewPaneView: NSView {
 
     func show(item: FileItem?) {
         cleanupExtractedTempFile()
+        archiveEntryData = nil
         archiveLoadToken = nil
         currentItem = item
         currentSourceText = nil
@@ -113,27 +116,40 @@ final class FilePreviewPaneView: NSView {
         let itemID = item.id
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else { return }
+
             guard let data = ArchiveContentLoader.extractEntryData(from: archiveURL, path: relativePath),
                   !data.isEmpty else {
                 DispatchQueue.main.async {
-                    guard let self, self.archiveLoadToken == token, self.currentItem?.id == itemID else { return }
+                    guard self.archiveLoadToken == token, self.currentItem?.id == itemID else { return }
                     self.showArchivePreviewFailure(for: item)
                 }
                 return
             }
 
+            if Self.isImageFile(named: item.name) {
+                let image = Self.decodeImage(from: data, maxPixelSize: 4096)
+                DispatchQueue.main.async {
+                    guard self.archiveLoadToken == token, self.currentItem?.id == itemID else { return }
+                    if let image {
+                        self.archiveEntryData = data
+                        self.showImagePreview(image)
+                    } else {
+                        self.showArchivePreviewFailure(for: item)
+                    }
+                }
+                return
+            }
+
             DispatchQueue.main.async {
-                guard let self, self.archiveLoadToken == token, self.currentItem?.id == itemID else { return }
+                guard self.archiveLoadToken == token, self.currentItem?.id == itemID else { return }
                 self.presentArchiveEntryData(data, for: item)
             }
         }
     }
 
     private func presentArchiveEntryData(_ data: Data, for item: FileItem) {
-        if isImageFile(named: item.name), let image = NSImage(data: data) {
-            showImagePreview(image)
-            return
-        }
+        archiveEntryData = data
 
         if InlineFilePreviewLoader.isTextPreviewable(fileName: item.name),
            let text = InlineFilePreviewLoader.decodeText(from: data) {
@@ -141,11 +157,7 @@ final class FilePreviewPaneView: NSView {
             return
         }
 
-        if let tempURL = ArchiveContentLoader.extractEntryToTempFile(
-            from: item.url,
-            path: item.relativePath,
-            filename: item.name
-        ) {
+        if let tempURL = ArchiveContentLoader.writeEntryDataToTempFile(data, filename: item.name) {
             extractedTempURL = tempURL
             if showQuickLookPreview(for: tempURL) {
                 return
@@ -175,10 +187,29 @@ final class FilePreviewPaneView: NSView {
         showPlaceholderMode()
     }
 
-    private func isImageFile(named name: String) -> Bool {
+    private static func isImageFile(named name: String) -> Bool {
         let ext = URL(fileURLWithPath: name).pathExtension
         guard let type = UTType(filenameExtension: ext) else { return false }
         return type.conforms(to: .image) && type.identifier != "public.svg-image"
+    }
+
+    private static func decodeImage(from data: Data, maxPixelSize: CGFloat) -> NSImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
+            return NSImage(data: data)
+        }
+
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
+        ]
+
+        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            return NSImage(data: data)
+        }
+
+        let size = NSSize(width: cgImage.width, height: cgImage.height)
+        return NSImage(cgImage: cgImage, size: size)
     }
 
     private func cleanupExtractedTempFile() {
@@ -248,11 +279,8 @@ final class FilePreviewPaneView: NSView {
 
     private func previewBaseURL(for item: FileItem) -> URL {
         if item.isArchiveEntry,
-           let tempURL = ArchiveContentLoader.extractEntryToTempFile(
-               from: item.url,
-               path: item.relativePath,
-               filename: item.name
-           ) {
+           let data = archiveEntryData,
+           let tempURL = ArchiveContentLoader.writeEntryDataToTempFile(data, filename: item.name) {
             extractedTempURL = tempURL
             return tempURL.deletingLastPathComponent()
         }

@@ -37,6 +37,7 @@
 		B10000000000000000000009 /* PreviewFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000012 /* PreviewFooterView.swift */; };
 		B10000000000000000000011 /* ArchiveContentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000018 /* ArchiveContentLoader.swift */; };
 		B1000000000000000000001A /* ZipArchiveReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000028 /* ZipArchiveReader.swift */; };
+		B1000000000000000000001E /* TarArchiveReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000002C /* TarArchiveReader.swift */; };
 		B1000000000000000000001B /* ArchiveSandboxAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000029 /* ArchiveSandboxAccess.swift */; };
 		B10000000000000000000012 /* FileIconCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000019 /* FileIconCache.swift */; };
 		B1000000000000000000001C /* FileItemLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000000000000000000002A /* FileItemLauncher.swift */; };
@@ -116,6 +117,7 @@
 		B20000000000000000000012 /* PreviewFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewFooterView.swift; sourceTree = "<group>"; };
 		B20000000000000000000018 /* ArchiveContentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveContentLoader.swift; sourceTree = "<group>"; };
 		B20000000000000000000028 /* ZipArchiveReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipArchiveReader.swift; sourceTree = "<group>"; };
+		B2000000000000000000002C /* TarArchiveReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TarArchiveReader.swift; sourceTree = "<group>"; };
 		B20000000000000000000029 /* ArchiveSandboxAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveSandboxAccess.swift; sourceTree = "<group>"; };
 		B20000000000000000000019 /* FileIconCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileIconCache.swift; sourceTree = "<group>"; };
 		B2000000000000000000002A /* FileItemLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileItemLauncher.swift; sourceTree = "<group>"; };
@@ -222,6 +224,7 @@
 				B20000000000000000000018 /* ArchiveContentLoader.swift */,
 				B2000000000000000000002B /* ArchiveEntryOpenBridge.swift */,
 				B20000000000000000000028 /* ZipArchiveReader.swift */,
+				B2000000000000000000002C /* TarArchiveReader.swift */,
 				B20000000000000000000029 /* ArchiveSandboxAccess.swift */,
 				B20000000000000000000008 /* PreviewSettings.swift */,
 				B20000000000000000000027 /* SharedPreferencesStore.swift */,
@@ -396,6 +399,7 @@
 				B10000000000000000000004 /* FolderContentLoader.swift in Sources */,
 				B10000000000000000000011 /* ArchiveContentLoader.swift in Sources */,
 				B1000000000000000000001A /* ZipArchiveReader.swift in Sources */,
+				B1000000000000000000001E /* TarArchiveReader.swift in Sources */,
 				B1000000000000000000001B /* ArchiveSandboxAccess.swift in Sources */,
 				B1000000000000000000000B /* PreviewSettings.swift in Sources */,
 				B10000000000000000000019 /* SharedPreferencesStore.swift in Sources */,

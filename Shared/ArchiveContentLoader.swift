@@ -89,7 +89,11 @@ enum ArchiveContentLoader {
 
     static func extractEntryToTempFile(from archiveURL: URL, path: String, filename: String) -> URL? {
         guard let data = extractEntryData(from: archiveURL, path: path), !data.isEmpty else { return nil }
-        return writeExtractedData(
+        return writeEntryDataToTempFile(data, filename: filename)
+    }
+
+    static func writeEntryDataToTempFile(_ data: Data, filename: String) -> URL? {
+        writeExtractedData(
             data,
             filename: filename,
             uniqueName: true,
@@ -229,7 +233,7 @@ enum ArchiveContentLoader {
         case .zip:
             entries = listZipEntries(in: archiveURL)
         case .tar:
-            entries = TarEntryLister.listEntries(in: archiveURL).map(listingEntryWithoutMetadata)
+            entries = listTarEntries(in: archiveURL)
         case .gzipSingle:
             entries = [listingEntryWithoutMetadata(gzipSingleEntryName(for: archiveURL))]
         case .sevenZip, .rar:
@@ -266,6 +270,24 @@ enum ArchiveContentLoader {
         }
 
         return ZipEntryLister.listEntries(in: archiveURL).map(listingEntryWithoutMetadata)
+    }
+
+    private static func listTarEntries(in archiveURL: URL) -> [ListingEntry] {
+        if let data = TarArchiveReader.payload(from: archiveURL) {
+            let infos = TarArchiveReader.listEntryInfos(in: data)
+            if !infos.isEmpty {
+                return infos.map { info in
+                    ListingEntry(
+                        path: info.path,
+                        size: info.isDirectory ? nil : info.uncompressedSize,
+                        modificationDate: info.modificationDate,
+                        isDirectory: info.isDirectory
+                    )
+                }
+            }
+        }
+
+        return TarEntryLister.listEntries(in: archiveURL).map(listingEntryWithoutMetadata)
     }
 
     private static func listingEntryWithoutMetadata(_ path: String) -> ListingEntry {
@@ -644,6 +666,11 @@ private enum ZipEntryExtractor {
 
 private enum TarEntryLister {
     static func listEntries(in archiveURL: URL) -> [String] {
+        if let data = TarArchiveReader.payload(from: archiveURL) {
+            let paths = TarArchiveReader.listEntryPaths(in: data)
+            if !paths.isEmpty { return paths }
+        }
+
         guard let localURL = ArchiveSandboxAccess.localReadableCopy(of: archiveURL) else { return [] }
         return ProcessRunner.runLines(
             executable: URL(fileURLWithPath: "/usr/bin/tar"),
@@ -654,6 +681,11 @@ private enum TarEntryLister {
 
 private enum TarEntryExtractor {
     static func extract(from archiveURL: URL, path: String) -> Data? {
+        if let data = TarArchiveReader.payload(from: archiveURL),
+           let extracted = TarArchiveReader.extractEntry(path: path, from: data) {
+            return extracted
+        }
+
         guard let localURL = ArchiveSandboxAccess.localReadableCopy(of: archiveURL) else { return nil }
         return ProcessRunner.run(
             executable: URL(fileURLWithPath: "/usr/bin/tar"),

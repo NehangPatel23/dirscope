@@ -1,366 +1,311 @@
+<div align="center">
+
 # Dirscope
 
-**Folder previews, built for Finder.**
+### Folder previews, built for Finder.
 
-Dirscope is a native macOS app and Quick Look extension that lets you browse folder and archive contents directly in Finder — press **Space** or **⌘Y** on any folder without opening a new window.
+Browse folders and archives inside **Quick Look** — no extra window, no full extraction.
 
-![macOS](https://img.shields.io/badge/macOS-13.0+-blue)
-![Swift](https://img.shields.io/badge/Swift-5-orange)
-![License](https://img.shields.io/badge/license-MIT-green)
+Press **Space** or **⌘Y** on any folder or archive in Finder.
+
+<br>
+
+[![macOS 13+](https://img.shields.io/badge/macOS-13.0+-0A84FF?style=for-the-badge&logo=apple&logoColor=white)](https://www.apple.com/macos/)
+[![Swift 5](https://img.shields.io/badge/Swift-5-FA7343?style=for-the-badge&logo=swift&logoColor=white)](https://swift.org/)
+[![License MIT](https://img.shields.io/badge/License-MIT-34C759?style=for-the-badge)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/NehangPatel23/dirscope?style=for-the-badge&label=Release)](https://github.com/NehangPatel23/dirscope/releases)
+
+<br>
+
+[Download latest release](https://github.com/NehangPatel23/dirscope/releases) · [Build from source](#build-from-source) · [Developer guide](docs/DEVELOPMENT.md) · [Fine print](#fine-print)
+
+</div>
 
 ---
 
-## Overview
+## At a glance
 
-Finder’s built-in Quick Look preview for folders stops at a plain folder icon. Dirscope replaces that with a rich, interactive browser: sortable file lists, icon grids, expandable subfolders, zip archive browsing, and a side panel for previewing files — all inside the standard Quick Look panel.
+| | |
+|---|---|
+| **What it is** | A native macOS host app + **Quick Look extension** that replaces Finder’s plain folder icon with a full file browser |
+| **What you get** | Sortable lists, icon grids, expandable trees, archive browsing, and a side-panel file inspector |
+| **What you don’t need** | Dirscope’s window open while previewing — Quick Look runs in the extension |
+| **Open source** | MIT license · built from scratch in Swift, SwiftUI, AppKit, and Quick Look |
 
-The project consists of two targets:
-
-| Target | Role |
-|--------|------|
-| **Dirscope** (host app) | Onboarding, settings, and extension setup |
-| **FolderPreviewExtension** | Quick Look preview UI embedded in Finder |
-
-Shared code (models, settings, theme, content loaders) lives in the `Shared/` folder and is compiled into both targets.
+```
+  Finder                    Quick Look panel
+  ──────                    ─────────────────────────────────────────
+  📁 My Project  ──Space──►  [ List │ Icons ]  path › … › src
+                             ┌──────────────────┬─────────────────────┐
+                             │ ▾ src            │  preview pane       │
+                             │   ▾ components   │  (text, image, QL)  │
+                             │     Button.swift │                     │
+                             └──────────────────┴─────────────────────┘
+```
 
 ---
 
 ## Features
 
-### Quick Look preview
+### Quick Look — folders
 
-- **Folder browsing** — list or icon view of any folder selected in Finder
-- **Zip archive browsing** — open `.zip` files in Quick Look without extracting; expand folders and nested archives in-place using disclosure arrows; single-root wrapper folders are stripped so contents appear at the top level
-- **Archive folder metadata** — files inside zips show per-entry size and modified date; folders show aggregated totals (sum of descendant file sizes) and the latest modified date among their contents
-- **Sandbox-safe archive I/O** — in-process zip parsing and extraction (store + deflate) via `NSFileCoordinator`; no dependency on spawning `unzip` inside the extension sandbox
-- **Sortable columns** — Name, Date Modified, Date Created, Size, Kind (and more via the column picker)
-- **Customizable columns** — right-click column headers to show/hide metadata; default columns are Name, Modified, Size, and Type
-- **File type icons** — every row in the Name column shows a proper folder or file icon (including archive entries)
-- **Expandable folder tree** — auto-expand nested subfolders with configurable depth (1–7 levels); works for directories inside zip archives
-- **Side-panel file preview** — select a file to preview text, Markdown, HTML, SVG, images, and other Quick Look–supported formats; dotfiles and config files (`.gitignore`, `.env`, `.dockerignore`, etc.) and code extensions (`.dart`, `.swift`, `.py`, …) show as monospaced source; archive entries are extracted on a background thread and scaled to fit the panel
-- **Open files inside archives** — double-click or use **Open** in the side panel; the entry is staged and handed to the default app (see [Archive entry open](#archive-entry-open) below)
-- **Footer toolbar** — path breadcrumb, item count, view switcher (List / Icons), and zoom slider
-- **System appearance** — list, inspect panel, and footer use semantic `windowBackgroundColor` and refresh when macOS switches light/dark mode
-- **No host app required for preview** — browsing and side-panel previews run entirely in the Quick Look extension; Dirscope’s window does not need to be open
+| Feature | Details |
+|---------|---------|
+| **List & icon views** | Switch with the footer control; default is configurable |
+| **Sortable columns** | Click headers to sort; optional columns via right-click |
+| **Expandable tree** | Disclosure chevrons on folders; optional auto-expand with depth limit (1–7) |
+| **Hidden files** | Optional dotfile display (`.gitignore`, `.env`, …) |
+| **Folder-first sort** | Optional grouping of directories above files |
+| **Path breadcrumb** | Footer bar showing current location (toggle in settings) |
+| **Zoom** | Footer slider scales row height and icon grid size |
+| **File type icons** | Every name row shows the correct Finder-style icon |
+| **Light / dark mode** | List, inspect panel, and footer follow system appearance live |
 
-### Host app
+**Available columns** (right-click any header to toggle):
 
-- **Dashboard** — quick-start overview and setup flow
-- **Introduction** — friendly walkthrough of what Dirscope does
-- **Extension setup** — step-by-step guide to enable the Quick Look extension in System Settings
-- **Appearance settings** — default view, text size (S / M / L), and path breadcrumb
-- **Behaviors settings** — hidden files, sort folders first, auto-expand subfolders, nesting depth
-- **System Settings window** — same Appearance and Behaviors panes available via **⌘,**
+| Column | Shows |
+|--------|--------|
+| Name | File or folder name + icon (always visible) |
+| Modified | Content modification date |
+| Created | Creation date |
+| Last Opened | Content access date |
+| Added | Date added to parent folder |
+| Size | File size (human-readable) |
+| Type | Uniform Type localized description |
+| Resolution | Pixel dimensions for images |
 
-### Settings sync
-
-Settings are stored in a shared plist file inside the Quick Look extension’s sandbox container, so both the host app and extension read the same preferences — even without an App Group entitlement (which requires a paid developer certificate for ad-hoc builds).
-
-Changes propagate live via Darwin notifications; no relaunch required. Preference writes are skipped when values are unchanged, and migrations run only in the host app (not during extension reload) to avoid feedback loops.
+Default visible columns: **Name**, **Modified**, **Size**, **Type**.
 
 ---
 
-## Requirements
+### Quick Look — archives
 
-- **macOS 13.0** (Ventura) or later
-- **Xcode 15+** (tested with Xcode 16 / macOS 26 SDK)
-- Apple Silicon or Intel Mac
+Open archives in Quick Look like folders — browse without extracting the whole file.
+
+| Format | Listing | Metadata (size / date) | Side-panel preview | Open in default app |
+|--------|---------|------------------------|--------------------|---------------------|
+| **`.zip`** | In-process | Per entry + folder aggregates | Yes | Yes (background helper) |
+| **`.tar`** | In-process | Per entry + folder aggregates | Yes | Yes |
+| **`.tar.gz` / `.tgz`** | In-process (gzip + tar) | Yes | Yes | Yes |
+| **`.tar.xz`** | In-process (xz + tar) | Yes | Yes | Yes |
+| **`.gz`** (single file) | Single implicit entry | — | Yes | Yes |
+| **`.7z`** | Via bundled `7zz` | Limited | Yes | Yes |
+| **`.rar`** | Via bundled `7zz` | Limited | Yes | Yes |
+
+**Archive behaviors**
+
+- **Nested folders** — expand with chevrons inside the archive list
+- **Nested archives** — `.zip` inside `.zip` browsable as containers
+- **Single-root strip** — if every entry lives under one top folder, that wrapper is skipped
+- **Sandbox-safe I/O** — coordinated reads + cached bytes in the extension container
+- **Zip cache** — archive data and parsed listings cached by path, size, and modification time
+- **Background extract** — only the selected entry is extracted for preview or open (never the full archive)
+
+**Opening a file inside an archive**
+
+1. Extension extracts **one** entry to a staging folder  
+2. A pending-open plist is written  
+3. A headless **background helper** (LaunchAgent) opens the file via Launch Services  
+
+Double-click, **Return**, or the side-panel **Open** button all use this path. Reinstall with `./install-app.sh` if opens stop working. Status is shown under **Behaviors → Archive file opens**.
 
 ---
 
-## Quick start
+### Side-panel file preview
 
-### Option A — install script (recommended)
+Click any file in the list to inspect it on the right.
 
-From the project root:
+| Content type | Behavior |
+|--------------|----------|
+| **Plain text & code** | Monospaced source view; 512 KB cap with truncation notice |
+| **Dotfiles & config** | `.gitignore`, `.dockerignore`, `.env*`, `.prettierrc`, `Dockerfile`, `Makefile`, … |
+| **Code extensions** | `.swift`, `.py`, `.dart`, `.ts`, `.rs`, `.go`, `.java`, `.kt`, … (see `InlineFilePreviewLoader`) |
+| **Markdown** | Source / Formatted toggle |
+| **HTML** | Source / Formatted toggle; staged base URL for archive entries |
+| **SVG** | Rendered image when possible |
+| **Images** | Decoded on a background thread, scaled to fit (not SVG) |
+| **PDF, video, audio, …** | Quick Look fallback when inline preview isn’t available |
+| **Folders** | Placeholder — use list chevrons to navigate |
+| **Archive containers** | Placeholder — use chevrons to browse |
+
+Archive entries reuse extracted bytes for Quick Look and HTML base URLs (no double extraction).
+
+---
+
+### Host app (Dirscope)
+
+The menu-bar app is for **onboarding, settings, and extension setup** — not required during normal Quick Look use.
+
+| Section | Purpose |
+|---------|---------|
+| **Dashboard** | Quick-start overview |
+| **Introduction** | What Dirscope does, archives, background helper |
+| **Quick Look** | Usage tips while previewing |
+| **Extension** | Step-by-step System Settings enablement |
+| **Appearance** | Default view, text size (S / M / L), path breadcrumb |
+| **Behaviors** | Hidden files, folder-first sort, auto-expand, nesting depth, helper status |
+| **About** | Capabilities summary |
+| **⌘, Settings** | Same Appearance & Behaviors panes |
+
+**Settings sync** — preferences live in the extension container plist; changes apply live in Quick Look via Darwin notifications (no relaunch).
+
+---
+
+## Install
+
+### Option A — GitHub release (pre-built)
+
+1. Download **`Dirscope-x.y.z.zip`** from [Releases](https://github.com/NehangPatel23/dirscope/releases)
+2. Move **`Dirscope.app`** to **`/Applications`**
+3. **First open** — see [Gatekeeper](#gatekeeper-ad-hoc-builds) below if macOS blocks the app
+4. Open Dirscope once (registers background helper)
+5. **System Settings → General → Login Items & Extensions → Quick Look** → enable **Dirscope**
+6. In Finder: select a folder → **Space** or **⌘Y**
+
+### Option B — Build from source (recommended for developers)
 
 ```bash
+git clone https://github.com/NehangPatel23/dirscope.git
+cd dirscope
 ./install-app.sh
 ```
 
-This script:
-
-1. Clears extended attributes on the project (`xattr -cr`) to avoid codesign failures
-2. Regenerates app icons from the bundled source artwork (skip with `--skip-icons`)
-3. Builds the project with `xcodebuild`
-4. Installs `Dirscope.app` to `/Applications`
-5. Syncs legacy preferences into the extension container (if present)
-6. Reloads Quick Look (`qlmanage -r`)
-7. Installs a LaunchAgent that runs `Dirscope -backgroundOpenHelper` at login (for archive file opens)
-8. Opens the app (skip with `--no-open`)
+`install-app.sh` builds, installs to `/Applications`, reloads Quick Look, and registers the LaunchAgent.
 
 ```bash
-./install-app.sh --no-open --skip-icons   # common for watch/hook rebuilds
+./install-app.sh --no-open --skip-icons   # rebuild without opening app or regenerating icons
 ```
 
-### Option B — Xcode
+Optional: `./scripts/fetch-7zz.sh` before install for sandboxed **7z/rar** support (copied into app Resources).
 
-1. Open `FolderPreviewApp.xcodeproj` in Xcode
-2. Select the **FolderPreviewApp** scheme
-3. Build and run (**⌘R**)
-4. Enable **Dirscope** in **System Settings → General → Login Items & Extensions → Quick Look**
+### Option C — Xcode
 
-### Enable the extension
-
-1. Open **System Settings → General → Login Items & Extensions**
-2. Click **Quick Look** in the sidebar
-3. Turn on **Dirscope**
-
-Then select any folder in Finder and press **Space** or **⌘Y**.
+1. Open `FolderPreviewApp.xcodeproj`
+2. Scheme: **FolderPreviewApp** → **⌘R**
+3. Enable the extension in System Settings (as above)
 
 ---
 
-## Usage
+## Fine print
 
-### Basic workflow
+> Read this section if you download binaries, care about legal clarity, or wonder why macOS warns about the app.
 
-1. Highlight a folder or `.zip` archive in Finder
-2. Press **Space** to open Quick Look
-3. Browse files in list or icon view
-4. Use disclosure arrows on folders (and zip archives inside archives) to expand nested contents
-5. Click a file to preview it in the side panel — text, images, and other supported types, including files inside zip archives
-6. Double-click a file to open it in its default app. Double-click a folder inside an archive to expand it (list view)
+### Gatekeeper (ad-hoc builds)
 
-### Archive workflow
+Dirscope is **not notarized** and is **not signed with a paid Apple Developer ID**. Release builds use ad-hoc / “Sign to Run Locally” signing.
 
-1. Quick Look a `.zip` file — Dirscope lists its contents like a folder
-2. Expand subfolders with the chevron in the Name column
-3. Select an image (e.g. `screen.png`) to preview it in the right panel without extracting the archive
-4. Select text or code files for inline source preview; other types fall back to Quick Look where possible
-5. Double-click a file (or select it and click **Open**) to launch it in its default application
+**You may see:** *“Dirscope can’t be opened because Apple cannot check it for malicious software.”*
 
-### Archive entry open
+**To install anyway:**
 
-Opening a file **inside** an archive works differently from browsing:
+1. **Right-click** `Dirscope.app` → **Open** → confirm, **or**
+2. **System Settings → Privacy & Security → Open Anyway** after the first blocked attempt
 
-| Step | What happens |
-|------|----------------|
-| 1 | The Quick Look extension extracts that single entry to a shared staging folder |
-| 2 | A pending-open request is written beside your preferences |
-| 3 | A lightweight **background helper** (LaunchAgent) picks up the request and opens the staged file via Launch Services — no Dirscope window required |
+This is normal for independent open-source Mac apps distributed outside the App Store without a $99/year Apple Developer Program membership. **We do not notarize** — by design, to avoid that cost.
 
-You do **not** need Dirscope’s settings window open for Quick Look previews. A headless background helper (installed by `install-app.sh`) handles archive opens. The whole archive is never extracted — only the one file you chose.
+### No Apple Developer account
 
-After installing, the helper runs automatically at login. If archive opens stop working, reinstall with `./install-app.sh` to refresh the LaunchAgent.
+| Available without $99/year | Requires paid Apple Developer Program |
+|----------------------------|----------------------------------------|
+| Build and run on your Mac | Mac App Store distribution |
+| Ad-hoc GitHub release zip/dmg | Notarization & “identified developer” |
+| Quick Look extension (local) | App Group entitlements (optional prefs sync) |
+| Open-source distribution | Smooth install for strangers with zero warnings |
 
-**Return** also opens the selected archive entry when the preview panel has focus.
+**Recommended path without a developer account:** build from source with `./install-app.sh`, or download the release and use Right-click → Open.
 
-### Customizing the preview
+### Independence & inspiration
 
-Open Dirscope and go to **Configure → Appearance** or **Configure → Behaviors**, or use **⌘,** in the host app.
+Dirscope is an **independent, open-source project**. It is **not affiliated with, endorsed by, or derived from** any commercial product.
 
-| Setting | Description |
-|---------|-------------|
-| Default view | Start in List or Icons view |
-| Text size | Small, Medium, or Large — affects rows, labels, and grid icons |
-| Show path breadcrumb | Footer path bar showing current location |
-| Include hidden items | Show dotfiles (names starting with `.`) |
-| Sort folders first | Keep directories above files when sorting |
-| Auto-expand subfolders | Inline nested folder browsing |
-| Maximum nesting depth | How many folder levels to expand (1–7) |
+The **idea** of previewing folder contents from Finder Quick Look was inspired by the general concept popularized by third-party macOS utilities, including [Folder Preview on the Mac App Store](https://apps.apple.com/us/app/folder-preview/id6698876601?mt=12). Dirscope was **built from scratch** in Swift using Apple’s Quick Look APIs. It does not include, copy, or reverse-engineer code, assets, or UI from that app or any other commercial product.
 
-Right-click any column header in the preview to toggle visible metadata columns. The separate Preview/thumbnail column has been removed; file type icons always appear in the Name column.
+### Third-party components
 
----
+| Component | Use | License |
+|-----------|-----|---------|
+| **7-Zip (`7zz`)** | Optional bundled binary for `.7z` / `.rar` | [GNU LGPL](https://www.7-zip.org/license.txt) — see [`Vendor/README.md`](Vendor/README.md) |
+| **Apple frameworks** | Quick Look, AppKit, SwiftUI | Apple SDK terms |
 
-## Project structure
+### Privacy
 
-```
-Dirscope/
-├── FolderPreviewApp/              Host app (SwiftUI)
-│   ├── FolderPreviewAppApp.swift  App entry point
-│   ├── ContentView.swift          Sidebar navigation shell
-│   ├── AppSidebar.swift           Sidebar sections
-│   ├── AppVisualKit.swift         Shared visual components (heroes, cards, panels)
-│   ├── AppBranding.swift          App name, colors, icon helpers
-│   ├── DashboardView.swift        Landing page
-│   ├── IntroductionView.swift     Onboarding story cards
-│   ├── ExtensionPageView.swift    Extension setup guide
-│   ├── QuickLookPageView.swift    Quick Look usage guide
-│   ├── SettingsPagesView.swift    Appearance & Behaviors pages
-│   ├── AboutPageView.swift        About & capabilities
-│   └── Settings/                  Settings form views
-│
-├── FolderPreviewExtension/        Quick Look extension (AppKit)
-│   ├── PreviewViewController.swift   QL entry point
-│   ├── FolderContentsTableView.swift List view
-│   ├── FolderContentsCollectionView.swift  Icon grid view
-│   ├── FilePreviewPaneView.swift     Side-panel file preview
-│   ├── FileItemLauncher.swift        Double-click open (extracts archive entries)
-│   ├── PreviewFooterView.swift       Path bar, view switcher, zoom
-│   ├── FolderTreeModel.swift         Expandable folder tree
-│   ├── ThumbnailProvider.swift       Inline thumbnail generation
-│   └── FileIconCache.swift           Cached file type icons
-│
-├── Shared/                        Shared by app + extension
-│   ├── PreviewSettings.swift      Settings accessors, defaults & migrations
-│   ├── SharedPreferencesStore.swift  File-backed prefs + Darwin notifications
-│   ├── FolderContentLoader.swift  Directory listing
-│   ├── ArchiveContentLoader.swift Archive listing & entry extraction
-│   ├── ArchiveEntryOpenBridge.swift Staged archive opens (extension → background helper)
-│   ├── ArchiveSandboxAccess.swift Sandbox-safe archive reads & temp copies
-│   ├── ZipArchiveReader.swift     In-process zip central-directory parser (store + deflate)
-│   ├── FileItem.swift             File/folder/archive-entry model
-│   ├── PreviewColumn.swift        Column definitions
-│   ├── PreviewTheme.swift         Colors, fonts, layout constants
-│   ├── InlineFilePreviewLoader.swift  Text/markdown/HTML preview
-│   └── RichTextPreviewSupport.swift   Rendered Markdown/HTML helpers
-│
-├── scripts/
-│   ├── generate-icons.sh          Regenerate AppIcon + AppMark assets
-│   ├── rebuild-and-install.sh     Debounced rebuild (used by Cursor hook)
-│   └── watch-and-install.sh       Filesystem watcher for continuous rebuilds
-│
-├── .cursor/
-│   ├── hooks.json                 Rebuild after agent edits Swift/plist files
-│   └── hooks/rebuild-after-edit.sh
-│
-├── install-app.sh                 Build, install, and reload Quick Look
-└── FolderPreviewApp.xcodeproj     Xcode project
-```
+Dirscope runs locally. It does not upload folder contents or analytics to any server. Preferences and staged archive files stay on your Mac (extension container and temp directories).
+
+### Limitations
+
+- No syntax highlighting in source preview (plain monospaced text)
+- Complex HTML in archives may need a browser; external assets are not fetched
+- `.zip` files inside normal folders are not expandable as containers (only inside archive browse mode)
+- App Group entitlements are not used; prefs sync via explicit container path
+- Quick Look extension is sandboxed; archive opens depend on the background helper
 
 ---
 
-## Architecture notes
+## Usage cheat sheet
 
-### Settings storage
-
-Preferences are written to a plist at:
-
-```
-~/Library/Containers/com.folderpreview.app.preview/Data/Library/Application Support/Dirscope/Preferences.plist
-```
-
-The host app writes to this path explicitly (it is not sandboxed). The Quick Look extension reads and writes from its own Application Support directory, which resolves to the same location.
-
-Legacy preferences at `~/Library/Application Support/Dirscope/Preferences.plist` are migrated automatically on first host-app launch. A one-time `displaySettingsMigratedV2` migration removes the deprecated Preview column from saved column layouts.
-
-### Archive loading
-
-Zip archives are read through `ArchiveSandboxAccess` (coordinated reads + temp copies in the extension container). Listing and extraction use `ZipArchiveReader` for store- and deflate-compressed entries. External tools (`unzip`, `tar`, `7z`) are used as fallbacks when in-process parsing is insufficient. Archive entries are represented as `FileItem` values with `isArchiveEntry = true` and a `relativePath` inside the archive.
-
-### Archive entry open
-
-The Quick Look extension is sandboxed and cannot open staged files in external apps directly. `ArchiveEntryOpenBridge` coordinates opens across processes:
-
-```
-Extension                          Host app (Dirscope)
-─────────                          ───────────────────
-extract entry → stage file
-write PendingOpen.plist
-post Darwin notify  ──────────────► background helper (LaunchAgent)
-wake helper process ──────────────► if not already running
-                                   NSWorkspace.open(staged file)
-```
-
-The sandboxed extension cannot open files in external apps directly, nor reliably cold-launch the full Dirscope UI. Instead, `install-app.sh` registers a user LaunchAgent (`com.folderpreview.app.openhelper`) that keeps a headless `Dirscope -backgroundOpenHelper` process available to receive Darwin notifications.
-
-Staging and pending requests live under the extension container:
-
-```
-~/Library/Containers/com.folderpreview.app.preview/Data/Library/Application Support/Dirscope/
-├── Preferences.plist
-├── PendingOpen.plist          (written by extension, consumed by host)
-└── OpenStaging/               (extracted files awaiting open)
-```
-
-The background helper retries pending opens on short delays to avoid races with the extension’s wake request. The main Dirscope window is not shown during archive opens.
-
-### Quick Look appearance
-
-The file list, right-hand inspect panel, and footer toolbar share the same semantic window background via `PreviewTheme.applySurfaceBackground`. Layer fills update in `viewDidChangeEffectiveAppearance` so the inspect pane and footer stay in sync with light/dark mode instead of retaining a one-time tint from panel load.
-
-### Live settings updates
-
-When settings change, `SharedPreferencesStore` posts:
-
-- A `NotificationCenter` notification (in-process)
-- A Darwin notify event (cross-process, for the extension)
-
-The extension’s `PreviewViewController` observes both and reapplies settings without closing the Quick Look panel.
-
-### Bundle identifiers
-
-| Component | Identifier |
-|-----------|------------|
-| Host app | `com.folderpreview.app` |
-| Quick Look extension | `com.folderpreview.app.preview` |
-
-These are unchanged from early development; the user-facing name is **Dirscope**.
+| Action | How |
+|--------|-----|
+| Open preview | Select folder or archive in Finder → **Space** or **⌘Y** |
+| List / Icons | Footer segmented control |
+| Expand folder | Click chevron in Name column |
+| Preview file | Single-click in list |
+| Open file | Double-click (or **Return** for archive entries) |
+| Open from archive | Double-click, **Return**, or side-panel **Open** |
+| Toggle columns | Right-click column header |
+| Change settings | Dirscope → **Configure** or **⌘,** |
 
 ---
 
-## Building from source
+## Build from source
 
 ```bash
-# Clone the repo
-git clone https://github.com/NehangPatel23/dirscope.git
-cd dirscope
-
-# Build and install
+xattr -cr .                    # if codesign complains about "resource fork"
 ./install-app.sh
 ```
 
 Manual build:
 
 ```bash
-xattr -cr .
-./scripts/generate-icons.sh
-xcodebuild \
-  -project FolderPreviewApp.xcodeproj \
+xcodebuild -project FolderPreviewApp.xcodeproj \
   -scheme FolderPreviewApp \
   -derivedDataPath ./DerivedData \
   build
-
-open DerivedData/Build/Products/Debug/Dirscope.app
 ```
 
-### Release build (Developer ID + notarization)
-
-For a shareable Release build, bundle optional archive tools and write artifacts to `dist/`:
+### Release artifacts (optional)
 
 ```bash
-# Optional: fetch 7zz for sandboxed 7z/rar support
-./scripts/fetch-7zz.sh
-
-# Ad-hoc Release zip (local testing)
-./scripts/release-build.sh --skip-notarize
-
-# Notarized release (requires Apple Developer account)
-DEVELOPMENT_TEAM="YOUR_TEAM_ID" NOTARY_PROFILE="dirscope-notary" ./scripts/release-build.sh
+./scripts/fetch-7zz.sh                    # optional 7z/rar support
+./scripts/release-build.sh --skip-notarize  # writes dist/Dirscope-VERSION.zip
 ```
 
-Set up notarization credentials once with:
+Outputs: `dist/Dirscope-VERSION.zip`, `.dmg`, and `RELEASE-VERSION.md`.
+
+Notarization (`DEVELOPMENT_TEAM`, `NOTARY_PROFILE`) is **optional** and requires a paid Apple Developer account. This project targets **ad-hoc** releases by default.
+
+Publish to GitHub:
 
 ```bash
-xcrun notarytool store-credentials dirscope-notary \
-  --apple-id "you@example.com" \
-  --team-id "YOUR_TEAM_ID" \
-  --password "app-specific-password"
+gh release create v1.0.0 dist/Dirscope-1.0.0.zip dist/Dirscope-1.0.0.dmg \
+  --notes-file dist/RELEASE-1.0.0.md
 ```
 
-Release outputs:
+---
 
-- `dist/Dirscope-VERSION.zip` — notarized when credentials are provided
-- `dist/Dirscope-VERSION.dmg` — optional disk image
-- `dist/RELEASE-VERSION.md` — install notes for GitHub releases
-
-Both app and extension targets already enable **Hardened Runtime**. Set `DEVELOPMENT_TEAM` in Xcode or via the release script for Developer ID signing.
-
-### Troubleshooting
+## Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
-| Quick Look still shows the default folder or zip icon | Close the panel, run `qlmanage -r`, then `killall Finder` if needed |
-| "Extension … failed during preview of this document" | Reinstall with `./install-app.sh`, run `killall Finder`, try again; check `~/Library/Logs/DiagnosticReports/FolderPreviewExtension*.ips` |
-| Archive list is empty or previews fail | Ensure the zip is readable; deflate entries require the in-process reader (rebuild if using an old build) |
-| Double-click / Open inside archive does nothing | Reinstall with `./install-app.sh` (refreshes the LaunchAgent). Verify helper: `pgrep -fl backgroundOpenHelper` should show a running process |
-| Settings changes not reflected in preview | Quit and reopen Quick Look; verify prefs exist at the container path above |
-| Codesign error: "resource fork, Finder information, or similar detritus not allowed" | Run `xattr -cr DerivedData` in the project directory, then `./install-app.sh --no-open --skip-icons` (`install-app.sh` clears this automatically before each build) |
-| Dock shows an old icon | Run `killall Dock` after reinstalling |
-| Extension not listed in System Settings | Rebuild, reinstall, and ensure the appex is embedded in `Dirscope.app/Contents/PlugIns/` |
+| macOS won’t open the app | [Gatekeeper](#gatekeeper-ad-hoc-builds): Right-click → Open |
+| Default folder icon in Quick Look | Close panel → `qlmanage -r` → `killall Finder` |
+| Extension failed during preview | `./install-app.sh` → `killall Finder` |
+| Archive list empty | Rebuild; ensure archive is readable |
+| Archive open does nothing | `./install-app.sh`; check **Behaviors → Archive file opens**; `pgrep -fl backgroundOpenHelper` |
+| Settings not updating | Close and reopen Quick Look |
+| Codesign “resource fork… detritus” | `xattr -cr DerivedData` then rebuild (`install-app.sh` clears this automatically) |
+| Extension missing in Settings | Reinstall; verify `Dirscope.app/Contents/PlugIns/FolderPreviewExtension.appex` |
 
-Inspect current preferences:
+Inspect preferences:
 
 ```bash
 plutil -p ~/Library/Containers/com.folderpreview.app.preview/Data/Library/Application\ Support/Dirscope/Preferences.plist
@@ -368,91 +313,52 @@ plutil -p ~/Library/Containers/com.folderpreview.app.preview/Data/Library/Applic
 
 ---
 
-## Development
+## Architecture
 
-### Auto rebuild and reinstall
-
-Dirscope can rebuild and reinstall itself after source changes so the Quick Look extension stays up to date while you work.
-
-**Option A — Cursor hook (agent edits):** `.cursor/hooks.json` runs `scripts/rebuild-and-install.sh` after Swift/plist edits. Reload Cursor once if hooks do not pick up immediately.
-
-**Option B — File watcher (all edits):** run this in a terminal and leave it open:
-
-```bash
-./scripts/watch-and-install.sh
+```mermaid
+flowchart LR
+  subgraph finder [Finder]
+    QL[Quick Look Space]
+  end
+  subgraph extension [FolderPreviewExtension]
+    List[List / Icons]
+    Pane[File preview pane]
+    Bridge[ArchiveEntryOpenBridge]
+  end
+  subgraph host [Dirscope app]
+    Settings[Settings UI]
+    Helper[backgroundOpenHelper]
+  end
+  QL --> List
+  List --> Pane
+  Bridge -->|Darwin notify| Helper
+  Settings -->|prefs plist| extension
 ```
 
-Both paths debounce changes (~3 seconds), install to `/Applications/Dirscope.app`, reload Quick Look, and log output to `DerivedData/install.log`. They call `./install-app.sh --no-open --skip-icons` so the app is not launched on every rebuild and icon regeneration is skipped (avoids a Python/Pillow dependency during rapid iteration).
+**Bundle IDs:** `com.folderpreview.app` (host) · `com.folderpreview.app.preview` (extension)
 
-Manual one-off install (opens the app when finished):
+**Prefs path:**
 
-```bash
-./install-app.sh
-```
-
-Faster rebuild without opening or regenerating icons:
-
-```bash
-./install-app.sh --no-open --skip-icons
-```
-
-### Regenerating icons
-
-App icons are generated from `scripts/icon-source.png`. To regenerate:
-
-```bash
-./scripts/generate-icons.sh
-```
-
-Or pass a custom source:
-
-```bash
-./scripts/generate-icons.sh /path/to/icon-source.png
-```
-
-This produces:
-
-- **AppIcon.appiconset** — opaque, full-bleed icons for macOS (Dock, Finder, About panel)
-- **AppMark.imageset** — transparent squircle for in-app UI heroes
-
-### Key files to know
-
-| File | Purpose |
-|------|---------|
-| `Shared/PreviewSettings.swift` | All setting keys, accessors, and migrations |
-| `Shared/SharedPreferencesStore.swift` | Cross-process preference persistence |
-| `Shared/ZipArchiveReader.swift` | In-process zip listing and deflate extraction |
-| `Shared/ArchiveContentLoader.swift` | Archive format dispatch, tree building, entry I/O |
-| `Shared/ArchiveEntryOpenBridge.swift` | Staged archive opens from extension to host app |
-| `FolderPreviewExtension/PreviewViewController.swift` | Quick Look lifecycle and layout |
-| `FolderPreviewExtension/FilePreviewPaneView.swift` | Side-panel previews (folders, archives, images) |
-| `FolderPreviewApp/AppVisualKit.swift` | Shared SwiftUI design system |
+`~/Library/Containers/com.folderpreview.app.preview/Data/Library/Application Support/Dirscope/Preferences.plist`
 
 ---
 
-## Roadmap / known limitations
+## Development
 
-- **Zip** — listing, nested folders, nested zips, deflate extraction, image/text side-panel preview, per-entry **size/modified date** (including aggregated totals for implicit folders), and **open in default app** (via background helper) are implemented
-- **Tar / `.tar.gz` / `.tar.xz`** — in-process listing and extraction with metadata (same sandbox-safe read path as zip); xz decompression uses `/usr/bin/xz` on a sandbox copy before tar parsing
-- **Other archive formats** — single `.gz` uses in-process gunzip; `.7z`/`.rar` prefer a bundled `7zz` in app Resources (see [`Vendor/README.md`](Vendor/README.md)), with Homebrew fallbacks for local dev
-- **HTML inside archives** — `code.html` and similar entries support Source/Formatted preview using a staged temp base URL; complex pages with external assets may still need a browser
-- **Background helper status** — Behaviors settings shows whether the Launch Agent is installed and running, with a reinstall action
-- **Zip entry cache** — archive bytes and parsed listings are cached per path/size/mtime for faster repeat browsing
-- App Group entitlements are not used (requires a proper signing identity for distribution)
-- Ad-hoc code signing is used for local development builds
+See **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** for project layout, architecture, `install-app.sh` internals, release signing, key source files, and contributor workflow.
 
 ---
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
+MIT License — see [LICENSE](LICENSE).
 
 ---
 
-## Acknowledgments
+<div align="center">
 
-Dirscope is an **independent, open-source project** and is **not affiliated with, endorsed by, or derived from** any commercial product.
+**Dirscope** — built with Swift, SwiftUI, AppKit, and Quick Look.
 
-The **idea** of previewing folder contents from Finder Quick Look was inspired by the general concept popularized by third-party macOS utilities, including [Folder Preview on the Mac App Store](https://apps.apple.com/us/app/folder-preview/id6698876601?mt=12). Dirscope was built from scratch in Swift using Apple's Quick Look APIs; it does not include, copy, or reverse-engineer code from that app or any other commercial product.
+Independent open source · not affiliated with Folder Preview or Apple.
 
-Built with Swift, SwiftUI, AppKit, and the Quick Look framework.
+</div>

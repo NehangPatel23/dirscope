@@ -27,11 +27,24 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+clear_codesign_xattrs() {
+  xattr -cr "$ROOT/DerivedData" 2>/dev/null || true
+  for path in FolderPreviewApp FolderPreviewExtension Shared FolderPreviewApp.xcodeproj; do
+    xattr -cr "$ROOT/$path" 2>/dev/null || true
+  done
+}
+
 echo "Building Dirscope..."
-xattr -cr "$ROOT" 2>/dev/null || true
+clear_codesign_xattrs
 if ! $SKIP_ICONS; then
-  "$ROOT/scripts/generate-icons.sh"
+  if python3 -c "import PIL" 2>/dev/null; then
+    "$ROOT/scripts/generate-icons.sh"
+  else
+    echo "Skipping icon regeneration (Pillow not installed; using bundled icons)." >&2
+    echo "  To regenerate icons: pip install Pillow, then re-run without --skip-icons." >&2
+  fi
 fi
+clear_codesign_xattrs
 xcodebuild \
   -project "$ROOT/FolderPreviewApp.xcodeproj" \
   -scheme FolderPreviewApp \

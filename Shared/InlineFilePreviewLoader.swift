@@ -18,6 +18,15 @@ enum InlineFilePreviewLoader {
         "strings", "xib", "storyboard", "pbxproj", "xcscheme", "xcworkspacedata"
     ]
 
+    private static let exactFileNames: Set<String> = [
+        "dockerfile", "makefile", "makefile.am", "makefile.in", "cmakelists.txt", "gemfile", "rakefile", "procfile"
+    ]
+
+    private static let dotfileNames: Set<String> = [
+        "prettierrc", "eslintrc", "npmrc", "yarnrc", "bashrc", "zshrc", "profile", "bash_profile",
+        "swiftlint.yml", "clang-format", "clang-tidy"
+    ]
+
     private static let maxPreviewBytes = 512_000
 
     static func isTextPreviewable(_ url: URL) -> Bool {
@@ -27,8 +36,18 @@ enum InlineFilePreviewLoader {
     static func isTextPreviewable(fileName: String) -> Bool {
         let lower = fileName.lowercased()
         let ext = URL(fileURLWithPath: lower).pathExtension
-        if textExtensions.contains(ext) { return true }
-        return lower == "dockerfile" || lower == "makefile" || lower.hasPrefix(".env")
+
+        if !ext.isEmpty, textExtensions.contains(ext) { return true }
+        if exactFileNames.contains(lower) { return true }
+
+        guard lower.hasPrefix(".") else { return false }
+
+        let stem = String(lower.dropFirst())
+        if textExtensions.contains(stem) { return true }
+        if stem.hasPrefix("env") { return true }
+        if dotfileNames.contains(stem) { return true }
+
+        return false
     }
 
     static func loadText(from url: URL) -> String? {

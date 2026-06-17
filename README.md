@@ -37,7 +37,7 @@ Shared code (models, settings, theme, content loaders) lives in the `Shared/` fo
 - **Customizable columns** — right-click column headers to show/hide metadata; default columns are Name, Modified, Size, and Type
 - **File type icons** — every row in the Name column shows a proper folder or file icon (including archive entries)
 - **Expandable folder tree** — auto-expand nested subfolders with configurable depth (1–7 levels); works for directories inside zip archives
-- **Side-panel file preview** — select a file to preview text, Markdown, HTML, SVG, images, and other Quick Look–supported formats; archive entries are extracted on a background thread and scaled to fit the panel
+- **Side-panel file preview** — select a file to preview text, Markdown, HTML, SVG, images, and other Quick Look–supported formats; dotfiles and config files (`.gitignore`, `.env`, `.dockerignore`, etc.) and code extensions (`.dart`, `.swift`, `.py`, …) show as monospaced source; archive entries are extracted on a background thread and scaled to fit the panel
 - **Open files inside archives** — double-click or use **Open** in the side panel; the entry is staged and handed to the default app (see [Archive entry open](#archive-entry-open) below)
 - **Footer toolbar** — path breadcrumb, item count, view switcher (List / Icons), and zoom slider
 - **System appearance** — list, inspect panel, and footer use semantic `windowBackgroundColor` and refresh when macOS switches light/dark mode
@@ -324,7 +324,7 @@ open DerivedData/Build/Products/Debug/Dirscope.app
 | Archive list is empty or previews fail | Ensure the zip is readable; deflate entries require the in-process reader (rebuild if using an old build) |
 | Double-click / Open inside archive does nothing | Reinstall with `./install-app.sh` (refreshes the LaunchAgent). Verify helper: `pgrep -fl backgroundOpenHelper` should show a running process |
 | Settings changes not reflected in preview | Quit and reopen Quick Look; verify prefs exist at the container path above |
-| Codesign error: "resource fork, Finder information, or similar detritus not allowed" | Run `xattr -cr .` on the project directory before building |
+| Codesign error: "resource fork, Finder information, or similar detritus not allowed" | Run `xattr -cr DerivedData` in the project directory, then `./install-app.sh --no-open --skip-icons` (`install-app.sh` clears this automatically before each build) |
 | Dock shows an old icon | Run `killall Dock` after reinstalling |
 | Extension not listed in System Settings | Rebuild, reinstall, and ensure the appex is embedded in `Dirscope.app/Contents/PlugIns/` |
 

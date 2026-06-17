@@ -60,7 +60,44 @@ enum TarArchiveReader {
 
     static func payload(from archiveURL: URL) -> Data? {
         guard let raw = ArchiveSandboxAccess.readData(from: archiveURL) else { return nil }
-        return decompressedTarData(from: raw)
+        if let decompressed = decompressedTarData(from: raw) {
+            return decompressed
+        }
+        if isXzCompressed(raw) {
+            return decompressXz(from: archiveURL)
+        }
+        return raw
+    }
+
+    private static func decompressXz(from archiveURL: URL) -> Data? {
+        guard let localURL = ArchiveSandboxAccess.localReadableCopy(of: archiveURL) else { return nil }
+
+        let xzCandidates = [
+            URL(fileURLWithPath: "/usr/bin/xz"),
+            URL(fileURLWithPath: "/opt/homebrew/bin/xz"),
+            URL(fileURLWithPath: "/usr/local/bin/xz")
+        ]
+        guard let xz = xzCandidates.first(where: { FileManager.default.isExecutableFile(atPath: $0.path) }) else {
+            return nil
+        }
+
+        let process = Process()
+        process.executableURL = xz
+        process.arguments = ["-dc", localURL.path]
+
+        let stdout = Pipe()
+        process.standardOutput = stdout
+        process.standardError = Pipe()
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+            guard process.terminationStatus == 0 else { return nil }
+            let data = stdout.fileHandleForReading.readDataToEndOfFile()
+            return data.isEmpty ? nil : data
+        } catch {
+            return nil
+        }
     }
 
     static func isGzipCompressed(_ data: Data) -> Bool {

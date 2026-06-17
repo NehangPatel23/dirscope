@@ -584,6 +584,10 @@ enum ArchiveContentLoader {
 
 private enum ExternalArchiveTool {
     static var sevenZipExecutable: URL? {
+        if let bundled = bundledSevenZipExecutable() {
+            return bundled
+        }
+
         let candidates = [
             "/opt/homebrew/bin/7zz",
             "/opt/homebrew/bin/7z",
@@ -593,6 +597,26 @@ private enum ExternalArchiveTool {
         return candidates
             .map { URL(fileURLWithPath: $0) }
             .first { FileManager.default.isExecutableFile(atPath: $0.path) }
+    }
+
+    private static func bundledSevenZipExecutable() -> URL? {
+        let fileManager = FileManager.default
+
+        if let resourceURL = Bundle.main.url(forResource: "7zz", withExtension: nil),
+           fileManager.isExecutableFile(atPath: resourceURL.path) {
+            return resourceURL
+        }
+
+        let hostAppResources = Bundle.main.bundleURL
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("Contents/Resources/7zz")
+        if fileManager.isExecutableFile(atPath: hostAppResources.path) {
+            return hostAppResources
+        }
+
+        return nil
     }
 }
 
@@ -696,6 +720,11 @@ private enum TarEntryExtractor {
 
 private enum GzipExtractor {
     static func extract(from archiveURL: URL) -> Data? {
+        if let raw = ArchiveSandboxAccess.readData(from: archiveURL),
+           let decompressed = TarArchiveReader.gunzip(raw) {
+            return decompressed
+        }
+
         guard let localURL = ArchiveSandboxAccess.localReadableCopy(of: archiveURL) else { return nil }
         return ProcessRunner.run(
             executable: URL(fileURLWithPath: "/usr/bin/gzip"),

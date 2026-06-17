@@ -29,9 +29,28 @@ done
 
 clear_codesign_xattrs() {
   xattr -cr "$ROOT/DerivedData" 2>/dev/null || true
-  for path in FolderPreviewApp FolderPreviewExtension Shared FolderPreviewApp.xcodeproj; do
+  for path in FolderPreviewApp FolderPreviewExtension Shared FolderPreviewApp.xcodeproj Vendor; do
     xattr -cr "$ROOT/$path" 2>/dev/null || true
   done
+}
+
+bundle_7zz_into_app() {
+  local app_path="$1"
+  local resources="${app_path}/Contents/Resources"
+  local vendor_7zz="${ROOT}/Vendor/7zz/7zz"
+  mkdir -p "${resources}"
+
+  if [[ ! -x "${vendor_7zz}" ]]; then
+    "$ROOT/scripts/fetch-7zz.sh" >/dev/null 2>&1 || true
+  fi
+
+  if [[ -x "${vendor_7zz}" ]]; then
+    cp "${vendor_7zz}" "${resources}/7zz"
+    chmod +x "${resources}/7zz"
+    echo "Bundled 7zz into app Resources."
+  else
+    echo "No 7zz bundled; run ./scripts/fetch-7zz.sh for sandboxed 7z/rar support." >&2
+  fi
 }
 
 echo "Building Dirscope..."
@@ -55,6 +74,8 @@ if [[ ! -d "$SOURCE_APP" ]]; then
   echo "Build failed: $SOURCE_APP not found" >&2
   exit 1
 fi
+
+bundle_7zz_into_app "${SOURCE_APP}"
 
 echo "Installing to ${DEST_APP}..."
 rm -rf "$DEST_APP"

@@ -47,3 +47,9 @@ iOSInjectionProject/
 *.tmp
 *.temp
 /tmp/
+
+# Distribution artifacts
+dist/
+
+# Bundled binaries (obtain via scripts/fetch-7zz.sh)
+Vendor/7zz/

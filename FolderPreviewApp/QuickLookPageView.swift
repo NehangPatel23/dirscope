@@ -22,7 +22,7 @@ struct QuickLookPageView: View {
                         icon: "doc.zipper",
                         tint: AppBranding.accentSecondary,
                         title: "Archives too",
-                        subtitle: "Zip, tar, gz, 7z, and rar",
+                        subtitle: "Zip, tar, gz, xz, 7z, and rar",
                         delay: 0.1
                     )
                     VisualHighlightCard(

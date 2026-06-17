@@ -315,6 +315,38 @@ xcodebuild \
 open DerivedData/Build/Products/Debug/Dirscope.app
 ```
 
+### Release build (Developer ID + notarization)
+
+For a shareable Release build, bundle optional archive tools and write artifacts to `dist/`:
+
+```bash
+# Optional: fetch 7zz for sandboxed 7z/rar support
+./scripts/fetch-7zz.sh
+
+# Ad-hoc Release zip (local testing)
+./scripts/release-build.sh --skip-notarize
+
+# Notarized release (requires Apple Developer account)
+DEVELOPMENT_TEAM="YOUR_TEAM_ID" NOTARY_PROFILE="dirscope-notary" ./scripts/release-build.sh
+```
+
+Set up notarization credentials once with:
+
+```bash
+xcrun notarytool store-credentials dirscope-notary \
+  --apple-id "you@example.com" \
+  --team-id "YOUR_TEAM_ID" \
+  --password "app-specific-password"
+```
+
+Release outputs:
+
+- `dist/Dirscope-VERSION.zip` — notarized when credentials are provided
+- `dist/Dirscope-VERSION.dmg` — optional disk image
+- `dist/RELEASE-VERSION.md` — install notes for GitHub releases
+
+Both app and extension targets already enable **Hardened Runtime**. Set `DEVELOPMENT_TEAM` in Xcode or via the release script for Developer ID signing.
+
 ### Troubleshooting
 
 | Problem | Fix |
@@ -401,8 +433,8 @@ This produces:
 ## Roadmap / known limitations
 
 - **Zip** — listing, nested folders, nested zips, deflate extraction, image/text side-panel preview, per-entry **size/modified date** (including aggregated totals for implicit folders), and **open in default app** (via background helper) are implemented
-- **Tar / `.tar.gz`** — in-process listing and extraction with metadata (same sandbox-safe read path as zip); `.tar.xz` still falls back to `/usr/bin/tar`
-- **Other archive formats** — single `.gz` decompression and `.7z`/`.rar` listing/extraction use external-tool fallbacks and are less reliable in the sandboxed extension
+- **Tar / `.tar.gz` / `.tar.xz`** — in-process listing and extraction with metadata (same sandbox-safe read path as zip); xz decompression uses `/usr/bin/xz` on a sandbox copy before tar parsing
+- **Other archive formats** — single `.gz` uses in-process gunzip; `.7z`/`.rar` prefer a bundled `7zz` in app Resources (see [`Vendor/README.md`](Vendor/README.md)), with Homebrew fallbacks for local dev
 - **HTML inside archives** — `code.html` and similar entries support Source/Formatted preview using a staged temp base URL; complex pages with external assets may still need a browser
 - **Background helper status** — Behaviors settings shows whether the Launch Agent is installed and running, with a reinstall action
 - **Zip entry cache** — archive bytes and parsed listings are cached per path/size/mtime for faster repeat browsing
